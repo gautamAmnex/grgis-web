@@ -1,0 +1,100 @@
+
+<div class="uploadImageBody">
+        <div class="multiImageUploadContainer">
+            <div class="upload">
+                <!-- UPLOADER 1 -->
+                <div class="upload-container">
+                  <h3>Upload Image </h3>
+                  <p>Only PNG/JPG/WebP/GIF</p>
+              
+                  <div class="dropzone"
+                       (drop)="onDrop($event, 0)"
+                       (dragover)="onDragOver($event)"
+                       (click)="fileInput1.click()"
+                       tabindex="0" role="button">
+                    <input #fileInput1 id="imageInput1" type="file" accept="image/*"
+                           (change)="onFileSelected($event, 0)" hidden />
+              
+                  
+                      <div class="placeholder">
+                        <div class="drop-icon">📷</div>
+                        <div class="hint">Drop image here or click to browse</div>
+                      </div>
+                   
+              
+              
+                </div>
+                          <div class="previewWrapper" *ngIf="file[0]">
+                            <img [src]="previewUrl[0]" alt="Preview image 1" class="preview-image" />
+                         
+                          </div>
+              
+                  <div class="error" *ngIf="error[0]">{{ error[0] }}</div>
+                </div>
+              
+                <!-- UPLOADER 2 -->
+                <div class="upload-container">
+                  <h3>Upload Image </h3>
+                  <p>Only PNG/JPG/WebP/GIF</p>
+              
+                  <div class="dropzone"
+                       (drop)="onDrop($event, 1)"
+                       (dragover)="onDragOver($event)"
+                       (click)="fileInput2.click()"
+                       tabindex="0" role="button">
+                    <input #fileInput2 id="imageInput2" type="file" accept="image/*"
+                           (change)="onFileSelected($event, 1)" hidden />
+              
+          
+                      <div class="placeholder">
+                        <div class="drop-icon">📷</div>
+                        <div class="hint">Drop image here or click to browse</div>
+                      </div>
+                
+              
+                  
+                      
+                    </div>
+                          <div class="previewWrapper" *ngIf="file[1]">
+                            <img [src]="previewUrl[1]" alt="Preview image 2" class="preview-image" />
+                         
+                          </div>
+              
+                  <div class="error" *ngIf="error[1]">{{ error[1] }}</div>
+                </div>
+            </div>
+              
+                <!-- FINAL UPLOAD BUTTON (between the two) -->
+                <div class="finalUpload">
+                  <button class=""
+                          (click)="uploadAll()"
+                          [disabled]="!canUploadAll() || isUploading">
+                    <span *ngIf="!isUploading">Upload All</span>
+                    <span *ngIf="isUploading">Uploading…</span>
+                  </button>
+                </div>
+              
+              </div>
+              
+              <div class="detail_container" *ngIf="showDetail">
+                    <h1 [style.color]="statusColor" *ngIf="statusText">
+                            <strong>Status:</strong>
+                            {{ statusText ? (statusText | titlecase) : '—' }}
+                          </h1>
+                  
+                    <h1 *ngIf="similarityScore || similarityScore == 0">
+                      <strong>Similarity score:</strong>
+                      <!-- show decimal with 2 digits -->
+                      {{ similarityScore !== null ? (similarityScore | number:'1.2-2') : '—' }}
+                      <!-- optional: show percentage in parentheses -->
+                      <span *ngIf="similarityPercent !== null"> ({{ similarityPercent | number:'1.2-2' }}%)</span>
+                    </h1>
+                    <h1 *ngIf="errorText">
+                      <strong>{{errorText}}</strong>
+                    </h1>
+                  </div>
+                  
+          
+      
+      </div>
+      

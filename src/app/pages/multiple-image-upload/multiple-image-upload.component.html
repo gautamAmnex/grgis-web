@@ -1,0 +1,118 @@
+<div class="uploadImageBody">
+        <div class="upload-container">
+          <h1>Upload ZIP</h1>
+      
+          <div
+            class="dropzone"
+            (drop)="onDrop($event)"
+            (dragover)="onDragOver($event)"
+            (click)="fileInput.click()"
+            tabindex="0"
+            role="button"
+          >
+            <input
+              #fileInput
+              id="zipInput"
+              type="file"
+              accept=".zip"
+              [disabled]="showTableLoader"
+              (change)="onFileSelected($event)"
+              hidden
+            />
+      
+         
+              <div class="placeholder">
+                <div class="drop-icon">📁</div>
+                <div class="hint">Drop ZIP here or click to browse</div>
+              </div>
+          
+      
+        </div>
+   
+          <div class="previewWrapper" *ngIf="file">
+            <h3>{{ file?.name }}</h3>
+            <p>{{ (file?.size / 1024 / 1024) | number:'1.2-2' }} MB</p>
+          </div>
+     
+      
+          <div class="controls">
+            <button (click)="uploadZip()" [disabled]="!file || isUploading">
+              <span *ngIf="!isUploading">Upload</span>
+              <span *ngIf="isUploading">Uploading…</span>
+            </button>
+           
+      
+            <button  type="button" (click)="removeFile()" [disabled]="!file || isUploading">
+              Cancel
+            </button>
+          </div>
+      
+          <div class="error" *ngIf="error">{{ error }}</div>
+        </div>
+      
+        <!-- Details will come below after upload -->
+        <div class="detail_container" *ngIf="showDetail">
+               
+                      <p-table
+                      *ngIf="outputDataTable.length > 0"
+                        [value]="outputDataTable"
+                        [paginator]="true"
+                        [rows]="50"
+                        [scrollable]="true" 
+                        [totalRecords]="totalRecords" 
+                        [showCurrentPageReport]="true"
+                        currentPageReportTemplate="{first} - {last} of {totalRecords} items"
+                        [rowsPerPageOptions]="[10, 50 , 100]"
+                        scrollHeight="500px" 
+                        contentStyle="500px" 
+                    >
+                        <ng-template pTemplate="header">
+                            <tr>
+                                    <th>Sr. No</th>
+                                    <th>Preview</th>
+                                    <th>File Name</th>
+                                    <th>Human</th>
+                                    <th>Gender</th>
+                                    <th>Age</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                            <tr>
+                                    <td>{{ rowIndex + 1 }}</td>
+                                    <td>
+                                    <!-- <img 
+                                        [src]="data.processed_image"
+                                        alt="Image"
+                                        class="preview-img"
+                                    /> -->
+                                    <i class="pi pi-eye" (click)="click(data)"></i>
+                                    </td>
+                                <td>{{  data?.filename  }}</td>
+                                <td>{{ isHumanText(data.result?.is_human) }}</td>
+                                <td>{{ genderText(data?.result.gender) }}</td>
+                                <td>{{ ageText(data?.result?.age) }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+            </div>
+        <div class="table-loader-wrapper" *ngIf="showTableLoader">
+            <div class="table-loader"></div>
+        </div>  
+        
+      </div>
+      
+
+      <!-- <p-button (click)="showDialog()" label="Show" /> -->
+      <p-dialog header="Edit Profile" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+          <span class="p-text-secondary block mb-8">Update your information.</span>
+               <img 
+                                        [src]="img"
+                                        alt="Image"
+                                        class="preview-img"
+                                        style="width: 500px;height: 500px;"
+                                    />
+          <div class="flex justify-end gap-2"> 
+              <p-button label="Save" (click)="closeDialog() " />
+          </div>
+      </p-dialog>
+

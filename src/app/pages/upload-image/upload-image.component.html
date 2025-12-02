@@ -1,0 +1,75 @@
+
+<div class="uploadImageBody">
+  <div class="upload-container">
+          <h1>Upload Image</h1>
+          <p>Only one image (PNG/JPG/WebP/GIF)</p>
+        
+          <div
+            class="dropzone"
+            (drop)="onDrop($event)"
+            (dragover)="onDragOver($event)"
+            (click)="fileInput.click()"
+            tabindex="0"
+            role="button"
+          >
+            <input
+              #fileInput
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              hidden
+            />
+        
+           
+              <div class="placeholder">
+                <div class="drop-icon">📷</div>
+                <div class="hint">Drop image here or click to browse</div>
+              </div>
+          
+        
+         
+              <!-- Render preview only if file exists -->
+              
+            </div>
+                <div class="previewWrapper" *ngIf="file">
+                  <img [src]="previewUrl" alt="Preview image" class="preview-image" />
+                
+                </div>
+        
+          <div class="controls">
+            <button class="" (click)="uploadImage()" [disabled]="!file || isUploading">
+              <span *ngIf="!isUploading">Upload</span>
+              <span *ngIf="isUploading">Uploading…</span>
+            </button>
+        
+            <button class="" type="button" (click)="removeImage()" [disabled]="!file || isUploading">
+              Cancel
+            </button>
+          </div>
+        
+          <!-- error is typed explicitly as string|null, *ngIf guards it -->
+          <div class="error" *ngIf="error">{{ error }}</div>
+        </div>
+  <div class="detail_container"*ngIf="showDetail">
+      <ul *ngIf="imageDetail.is_human">
+        <li>
+          <div class="title">Human</div>
+          <div>{{ isHumanText }}</div>
+        </li>
+    
+        <li>
+          <div class="title">Gender</div>
+          <div>{{ genderText }}</div>
+        </li>
+    
+        <li>
+          <div class="title">Age</div>
+          <div>{{ ageText }}</div>
+        </li>
+      </ul>
+      <h1 *ngIf="!imageDetail.is_human">{{errorText}}</h1>
+    </div>
+    
+
+</div>

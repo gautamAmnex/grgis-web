@@ -1,0 +1,224 @@
+
+
+
+
+<div class="mainBody">
+    <div class="top_filter">
+        <div class="form_control">
+                <p-dropdown 
+                [options]="levelOptionList" 
+                [(ngModel)]="selectedLevel" 
+                optionLabel="name" 
+                optionValue="value" 
+                (onChange)="onLevelSelect()"
+                placeholder="Select Level">
+            </p-dropdown>
+        </div>
+        <div class="form_control">
+                <p-dropdown 
+                [options]="districtList" 
+                [(ngModel)]="selectedDistrict" 
+                optionLabel="name" 
+                [filter]="true"
+                [showClear]="true"
+                (onChange)="getTalukaListByDistrictId()"
+                placeholder="Select District">
+            </p-dropdown>
+        </div>
+        <div class="form_control">
+                <p-dropdown 
+                [options]="talukaList" 
+                [(ngModel)]="selectedTaluka" 
+                optionLabel="name" 
+                [filter]="true"
+                [showClear]="true"
+                (onChange)="getVillageListByTalukaId()"
+                placeholder="Select Taluka">
+            </p-dropdown>
+        </div>
+        <div class="form_control">
+                <p-dropdown 
+                [options]="villageList" 
+                [(ngModel)]="selectedVillage" 
+                optionLabel="name" 
+                [filter]="true"
+                [showClear]="true"
+                (onChange)="onVillageSelect()"
+                placeholder="Select Village">
+            </p-dropdown>
+        </div>
+    </div>
+    <div class="innerbody">
+        <div class="sidepanel">
+            <div class="card">
+               <h4 for="" class="card_label">Select Ration Card Type</h4>
+               <div class="card_body">
+                   <div class="checkbox_list">
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">AAY</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">PHH</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">APL White</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">NA</label>
+                       </div>
+                   </div>
+               </div>
+            </div>
+            <div class="card">
+               <h4 for="" class="card_label">Select Gender</h4>
+               <div class="card_body">
+                   <div class="checkbox_list">
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">Male</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">Female</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">Trans Gender</label>
+                       </div>
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">NA</label>
+                       </div>
+                   </div>
+               </div>
+            </div>
+            <div class="card">
+               <h4 for="" class="card_label">Select Cast Category</h4>
+               <div class="card_body">
+                   <div class="checkbox_list">
+                       <div class="checkbox_item">
+                           <input type="checkbox">
+                           <label for="">NA</label>
+                       </div>
+                   </div>
+               </div>
+            </div>
+            <div class="card">
+               <!-- <h4 for="" class="card_label">Select Cast Category</h4> -->
+               <div class="card_body">
+                <div class="form_control">
+                    <p-dropdown 
+                    [options]="domicileOptionList" 
+                    [(ngModel)]="selectedDomicileOption" 
+                    optionLabel="name" 
+                    [showClear]="true"
+                    placeholder="Domicile Flag">
+                    </p-dropdown>
+                </div>
+                <div class="form_control">
+                    <p-dropdown 
+                    [options]="domicileOptionList" 
+                    [(ngModel)]="selectedDisabilityOption" 
+                    optionLabel="name" 
+                    [showClear]="true"
+                    placeholder="Disability Flag">
+                    </p-dropdown>
+                </div>
+               </div>
+            </div>
+            <div class="card">
+               <!-- <h4 for="" class="card_label">Select Cast Category</h4> -->
+               <div class="card_body">
+                    <div class="checkbox_list">
+                        <div class="checkbox_item">
+                            <input type="checkbox" [(ngModel)]="isAgeSelected" (change)="onAgeCheckboxChange()">
+                            <label for="">Age</label>
+                        </div>
+                    </div>
+                    <div *ngIf="isAgeSelected" class="ageGroups">
+
+                        <div class="ageGroup" *ngFor="let group of ageGroups; let i = index">
+                          
+                                <input
+                                type="number"
+                                placeholder="From"
+                                min="1"
+                                max="150"
+                                [(ngModel)]="group.from"
+                                (ngModelChange)="validateGroups()"
+                                class="agreInput"
+                              />
+                    
+                            <input
+                                type="number"
+                                placeholder="To"
+                                min="1"
+                                max="150"
+                                [(ngModel)]="group.to"
+                                (ngModelChange)="validateGroups()"
+                                class="agreInput"
+                                />
+                    
+                        </div>
+                        <div class="btn_group">
+                            <button type="button" class="add-btn" (click)="addAgeGroup()">+ Add</button>
+                            <button type="button" [disabled]="!applyEnabled" (click)="applyAgeFilter()">Apply</button>
+                        </div>
+                    
+                      </div>
+
+                      <div class="checkbox_list">
+                            <div class="checkbox_item">
+                                <input type="checkbox" [(ngModel)]="isIncomeSelected" (change)="onIncomeCheckboxChange()">
+                                <label for="">Income</label>
+                            </div>
+                        </div>
+                        <div class="form_control" *ngIf="isIncomeSelected">
+                            <p-multiSelect  
+                                [options]="incomeOption" 
+                                [(ngModel)]="selectedIncomeList" 
+                                optionLabel="label" 
+                                optionValue="value" 
+                                (onChange)="onSelectImcomes()"
+                                [filter]="false"
+                                display="chip" 
+                                placeholder="Select Income">
+                            </p-multiSelect >
+                        </div>
+               </div>
+            </div>
+            <div class="card">
+                <h4 for="" class="card_label">Select Marital status</h4>
+                <div class="card_body">
+                        <div class="form_control" >
+                                <p-multiSelect  
+                                    [options]="maritalStatusOptionList" 
+                                    [(ngModel)]="selectedMartialStatusList" 
+                                    optionLabel="label" 
+                                    optionValue="value" 
+                                    [filter]="false"
+                                    display="chip" 
+                                    (onChange)="onSelectMartialStatus()"
+                                    placeholder="Select">
+                                </p-multiSelect >
+                            </div>
+                </div>
+                </div>
+        </div>
+        <div class="mapChartPanel">
+            <div class="map_container" id="map" [ngClass]="{ 'largeMapView': largeMapView }">
+                <button class="zoomMapBtn" (click)="toggleMapZoom()" >
+                    <i *ngIf="!largeMapView" class="pi pi-arrow-up-right-and-arrow-down-left-from-center"></i>
+                    <i *ngIf="largeMapView" class="pi pi-arrow-down-left-and-arrow-up-right-to-center"></i>
+                </button>
+            </div>
+            <div class="chart_panel">
+                <div class="echartDiv"></div>
+            </div>
+        </div>
+    </div>
+</div>
