@@ -145,7 +145,7 @@
                         </div>
                         <div class="btn_group">
                             <!-- <button type="button" class="add-btn" (click)="addAgeGroup()">+ Add</button> -->
-                            <button type="button" [disabled]="!applyEnabled" (click)="applyAgeFilter()">Apply</button>
+                            <!-- <button type="button" [disabled]="!applyEnabled" (click)="applyAgeFilter()">Apply</button> -->
                         </div>
                     
                       </div>
@@ -204,7 +204,7 @@
             </div>
             <div class="table">
                     <p-table
-                    *ngIf="tableData.length > 0"
+                    *ngIf="tableData?.length > 0"
                       [value]="tableData"
                       [paginator]="true"
                       [rows]="50"
