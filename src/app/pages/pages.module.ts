@@ -17,7 +17,8 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import 'echarts/theme/macarons.js';
 import { MultipleImageUploadComponent } from './multiple-image-upload/multiple-image-upload.component';
 import { DialogModule } from 'primeng/dialog';import { ButtonModule } from 'primeng/button';
- 
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 @NgModule({
   declarations: [
     PagesComponent,
@@ -35,11 +36,13 @@ import { DialogModule } from 'primeng/dialog';import { ButtonModule } from 'prim
     DropdownModule,
     TableModule ,
     DialogModule ,
-    ButtonModule
+    ButtonModule,
+    ToastModule
     // NgxEchartsModule.forRoot({ echarts: () => import('echarts') })
     // BrowserModule,
     // BrowserAnimationsModule
   ],
+  providers: [MessageService],
   bootstrap: [PagesComponent]
 })
 export class PagesModule { }

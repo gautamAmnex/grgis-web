@@ -53,46 +53,23 @@
             <div class="card">
                <h4 for="" class="card_label">Select Ration Card Type</h4>
                <div class="card_body">
-                   <div class="checkbox_list">
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">AAY</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">PHH</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">APL White</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">NA</label>
-                       </div>
-                   </div>
+                    <div class="checkbox_list">
+                            <div class="checkbox_item" *ngFor="let item of checkboxItems">
+                                    <input type="checkbox" [(ngModel)]="item.checked">
+                                    <label>{{ item.label }}</label>
+                                </div>
+                        </div>
+                        
                </div>
             </div>
             <div class="card">
                <h4 for="" class="card_label">Select Gender</h4>
                <div class="card_body">
                    <div class="checkbox_list">
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">Male</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">Female</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">Trans Gender</label>
-                       </div>
-                       <div class="checkbox_item">
-                           <input type="checkbox">
-                           <label for="">NA</label>
-                       </div>
+                        <div class="checkbox_item" *ngFor="let item of genderCheckboxes">
+                                <input type="checkbox" [(ngModel)]="item.checked" />
+                                <label>{{ item.label }}</label>
+                              </div>
                    </div>
                </div>
             </div>
@@ -115,6 +92,7 @@
                     [options]="domicileOptionList" 
                     [(ngModel)]="selectedDomicileOption" 
                     optionLabel="name" 
+                    optionValue="value" 
                     [showClear]="true"
                     placeholder="Domicile Flag">
                     </p-dropdown>
@@ -124,6 +102,7 @@
                     [options]="domicileOptionList" 
                     [(ngModel)]="selectedDisabilityOption" 
                     optionLabel="name" 
+                    optionValue="value" 
                     [showClear]="true"
                     placeholder="Disability Flag">
                     </p-dropdown>
@@ -165,7 +144,7 @@
                     
                         </div>
                         <div class="btn_group">
-                            <button type="button" class="add-btn" (click)="addAgeGroup()">+ Add</button>
+                            <!-- <button type="button" class="add-btn" (click)="addAgeGroup()">+ Add</button> -->
                             <button type="button" [disabled]="!applyEnabled" (click)="applyAgeFilter()">Apply</button>
                         </div>
                     
@@ -208,17 +187,70 @@
                             </div>
                 </div>
                 </div>
+
+                <button (click)="getgisgoldenrecorddynamicgroupWithFilter()">Apply</button>
         </div>
-        <div class="mapChartPanel">
-            <div class="map_container" id="map" [ngClass]="{ 'largeMapView': largeMapView }">
-                <button class="zoomMapBtn" (click)="toggleMapZoom()" >
-                    <i *ngIf="!largeMapView" class="pi pi-arrow-up-right-and-arrow-down-left-from-center"></i>
-                    <i *ngIf="largeMapView" class="pi pi-arrow-down-left-and-arrow-up-right-to-center"></i>
-                </button>
+        <div class="mapChartTablePanel">
+            <div class="mapChart">
+                <div class="map_container" id="map" [ngClass]="{ 'largeMapView': largeMapView }">
+                    <button class="zoomMapBtn" (click)="toggleMapZoom()" >
+                        <i *ngIf="!largeMapView" class="pi pi-arrow-up-right-and-arrow-down-left-from-center"></i>
+                        <i *ngIf="largeMapView" class="pi pi-arrow-down-left-and-arrow-up-right-to-center"></i>
+                    </button>
+                </div>
+                <div class="chart_panel">
+                    <div class="echartDiv"></div>
+                </div>
             </div>
-            <div class="chart_panel">
-                <div class="echartDiv"></div>
+            <div class="table">
+                    <p-table
+                    *ngIf="tableData.length > 0"
+                      [value]="tableData"
+                      [paginator]="true"
+                      [rows]="50"
+                      [scrollable]="true" 
+                      [totalRecords]="totalRecords" 
+                      [showCurrentPageReport]="true"
+                      currentPageReportTemplate="{first} - {last} of {totalRecords} items"
+                      [rowsPerPageOptions]="[10, 50 , 100]"
+                      scrollHeight="340px" 
+                      contentStyle="340px" 
+                  >
+                      <ng-template pTemplate="header">
+                          <tr>
+                              <th style="min-width:50px;max-width:50px;text-align: center">&nbsp;</th>
+                              <th>Name</th>
+                              <th>Gender</th>
+                              <th>District</th>
+                              <th>Taluka</th>
+                              <th>Village</th>
+                                
+                          </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                          <tr>
+                                <td style="min-width:50px;max-width:50px;text-align: center">
+                                    <button (click)="getDetailById(data.unique_key)"><i class="pi pi-eye"></i></button>
+                                </td>
+                                    <td>{{data.name}}</td>
+                                    <td>{{data.gender}}</td>
+                                    <td>{{data.district}}</td>
+                                    <td>{{data.taluka}}</td>
+                                    <td>{{data.village}}</td>
+                          </tr>
+                      </ng-template>
+                  </p-table>
             </div>
         </div>
     </div>
 </div>
+
+<p-toast />
+<p-dialog header="Detail" [modal]="true" [(visible)]="showDetail" [style]="{ width: '50vw' }">
+        <table class="info-table">
+                <tr *ngFor="let item of formattedList">
+                  <td class="label">{{ item.key }}</td>
+                  <td class="value">{{ item.value }}</td>
+                </tr>
+              </table>
+</p-dialog>

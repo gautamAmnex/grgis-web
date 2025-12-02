@@ -87,38 +87,47 @@ body {
                 }
             }
         }
-        .mapChartPanel{
+        .mapChartTablePanel{
             width: calc(100% - 300px);
-            height: 100%;
-            // border: 2px solid #e1e1e1;
+            height: calc(100vh - 77px);
             border-radius: 8px;
             overflow: hidden;
             position: relative;
-            // padding: 10px;
-            .map_container{
-                height: 50%;
-                width: 50%;
-                border-radius: 8px;
-                overflow: hidden;
-                position: relative;
-                transition: .3s;
-                &.largeMapView{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            // justify-content: space-between;
+            .mapChart{
+                width: 100%;
+                height: 400px;
+                .map_container{
                     height: 100%;
-                    width: 100%;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    z-index: 1;
-                    transition: .3s
+                    width: 50%;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    position: relative;
+                    transition: .3s;
+                    &.largeMapView{
+                        height: 100%;
+                        width: 100%;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        z-index: 2;
+                        transition: .3s
+                    }
+                    .zoomMapBtn{
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        z-index: 2;
+                        padding: 5px 10px;
+                        border-radius: 7px;
+                    }
                 }
-                .zoomMapBtn{
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    z-index: 2;
-                    padding: 5px 10px;
-                    border-radius: 7px;
-                }
+            }
+            .table{
+                width: 100%;
             }
         }
       

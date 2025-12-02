@@ -1,0 +1,15 @@
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .info-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .info-table .label {
+    font-weight: bold;
+    width: 30%;
+    color: #333;
+  }

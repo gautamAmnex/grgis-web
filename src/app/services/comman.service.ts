@@ -21,29 +21,29 @@ export class CommanService {
     }
   }
 
-  geoServerUrl = 'https://preprod-kdss.da.gov.in/geoserver/krishi-dss/wms'
+  geoServerUrl = 'http://10.130.3.25:8080/geoserver/GR/wms'
   getBoundingBox(layerName:any, lgd_s: any): Observable<any> {
 
     let areaName: any;
     let url = "";
     if (layerName === 'lgd_s') {
       areaName = 'india_states'
-      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=krishi-dss:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
+      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=GR:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
 
     }
     else if (layerName === 'lgd_d') {
       areaName = 'india_district'
-      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=krishi-dss:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
+      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=GR:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
 
     }
     else if (layerName === 'lgd_t') {
       areaName = 'india_taluka'
-      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=krishi-dss:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
+      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=GR:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox`;
 
     } else if (layerName === 'lgd_v')  {
       areaName = 'india_villages'
 
-      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=krishi-dss:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox1`;
+      url = `${this.geoServerUrl}?service=WFS&version=1.1.0&request=GetFeature&typeName=GR:${areaName}&CQL_FILTER=${layerName} IN (${lgd_s})&outputFormat=application/json&PropertyName=bbox1`;
 
     }
 
@@ -169,25 +169,43 @@ export class CommanService {
 
 
 
-  private baseUrl = 'https://departmentmasterapitest.amnex.co.in/api/OrganizationStructure'
+  private baseUrl = 'https://departmentmasterapitest.amnex.co.in/api'
   constructor(private http: HttpClient) { }
 
+  // ===== Dashboard Api ==============
   getOrganizationDistricts(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/GetOrganizationDistricts`);
+    return this.http.get(`${this.baseUrl}/OrganizationStructure/GetOrganizationDistricts`);
   }
 
   getAllOrganizationTalukaByDistricts(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/GetOrganizationTalukaByDistricts`);
+    return this.http.get(`${this.baseUrl}/OrganizationStructure/GetOrganizationTalukaByDistricts`);
   }
-
   getOrganizationTalukaByDistrictids(districtId:any): Observable<any> {
-    return this.http.get(`${this.baseUrl}/GetOrganizationTalukaByDistricts?districtids=${districtId}`);
+    return this.http.get(`${this.baseUrl}/OrganizationStructure/GetOrganizationTalukaByDistricts?districtids=${districtId}`);
   }
 
   getOrganizationVillagesByTalukas(talukaId:any): Observable<any> {
-    return this.http.get(`${this.baseUrl}/GetOrganizationVillagesByTalukas?talukaids=${talukaId}`);
+    return this.http.get(`${this.baseUrl}/OrganizationStructure/GetOrganizationVillagesByTalukas?talukaids=${talukaId}`);
+  }
+  
+  getDTVCount(payload:any): Observable<any> {
+    return this.http.post(`https://departmentmasterapi.amnex.co.in/api/OrganizationStructure/GetDTVCount` , payload);
   }
 
+
+  getgisgoldenrecorddetail(id:any): Observable<any> {
+    return this.http.get(`https://departmentmasterapi.amnex.co.in/api/GIS/Getgisgoldenrecorddetail?id=${id}`);
+  }
+
+  getgislistfilter(payload:any): Observable<any> {
+    return this.http.post(`https://departmentmasterapi.amnex.co.in/api/GIS/Getgislistfilter`, payload);
+  }
+
+  getgisgoldenrecorddynamicgroup(payload:any): Observable<any> {
+    return this.http.post(`https://departmentmasterapi.amnex.co.in/api/GIS/Getgisgoldenrecorddynamicgroup`, payload);
+  }
+
+  // =======================================
   pridictSingleImage(payload:any): Observable<any> {
     return this.http.post(`https://gr.amnex.co.in/ai-ml-service/pipeline/predict` , payload);
   }
@@ -195,9 +213,7 @@ export class CommanService {
     return this.http.post(`http://10.11.0.35:12001/check_matching` , payload);
   }
 
-  getDTVCount(payload:any): Observable<any> {
-    return this.http.post(`https://departmentmasterapi.amnex.co.in/api/OrganizationStructure/GetDTVCount` , payload);
-  }
+
 
   pridictsZipImage(payload:any): Observable<any> {
     return this.PostReactiveHandler3(payload,`https://gr.amnex.co.in/ai-ml-service/pipeline/v1/process-zip`);
@@ -210,13 +226,5 @@ export class CommanService {
   preview(payload:any): Observable<any> {
     return this.http.get(`https://gr.amnex.co.in/ai-ml-service/pipeline/v2/preview?path=${payload.fileName}&uuid_a=${payload.id}`);
   }
-
   
 }
-
-
-
-// git config --global user.name "gautam.jadav"
-
-
-// git config --global user.email "gautam5@amnex.com"
