@@ -1428,20 +1428,15 @@ export class ReportDashboardComponent {
     });
     this.map.addLayer(this.countLabelLayer);
     console.log(sampleData)
-    const codesArray = codesStr.split(",").map(Number); 
-    const totalCountsArray = sampleData.map(x => Number(x.totalcount));
+    const countsObj = sampleData.reduce((acc, item) => {
+      const code = Number(item[codeKey]);
+      const cnt = Number(item.totalcount);
     
-    const countsObj: any = {};
+      acc[code] = (acc[code] || 0) + cnt;
+      return acc;
+    }, {});
     
-    codesArray.forEach((code, i) => {
-      const cnt = totalCountsArray[i] || 0;
-    
-      if (!countsObj[code]) {
-        countsObj[code] = cnt;  // first entry
-      } else {
-        countsObj[code] += cnt; // ADD if already exists (sum)
-      }
-    });
+    console.log(countsObj);
     
 
     let newLayerName: any;
