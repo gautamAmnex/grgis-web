@@ -20,7 +20,7 @@ export class CommanService {
       el.style['display'] = 'none';
     }
   }
-
+  geoServerUrl_dss = 'https://preprod-kdss.da.gov.in/geoserver/krishi-dss/wms'
   geoServerUrl = 'http://10.130.3.25:8080/geoserver/GR/wms'
   getBoundingBox(layerName:any, lgd_s: any): Observable<any> {
 
@@ -227,6 +227,9 @@ export class CommanService {
     return this.http.get(`https://gr.amnex.co.in/ai-ml-service/pipeline/v2/preview?path=${payload.fileName}&uuid_a=${payload.id}`);
   }
   getGTsldUrl(payload: any) {
-    return this.http.post<any>(`${this.baseUrl}/portal/sldxml/get_sld_url`, payload);
-  }  
+    // return this.http.post<any>(${this.baseUrl}/portal/sldxml/get_sld_url, payload);
+    return this.http.post<any>(`https://preprod-krishidss.da.gov.in/krishi-dss-python/portal/sldxml/get_sld_url_gr`, payload);
+     
+  }
+ 
 }
