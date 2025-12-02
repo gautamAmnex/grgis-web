@@ -19,6 +19,8 @@ import {bbox as bboxStrategy} from 'ol/loadingstrategy';
 import { Style, Fill, Stroke, Icon, Text } from 'ol/style';
 import { getCenter } from 'ol/extent';
 import Feature from 'ol/Feature';
+
+import {   TileWMS, Vector, ImageStatic } from 'ol/source';
 import { Point } from 'ol/geom';
 @Component({
   selector: 'app-report-dashboard',
@@ -43,7 +45,6 @@ selectedDomicileOption:any
 selectedDisabilityOption:any
 
 onLevelSelect(){
-  this.resetPanel();
   this.selectedDistrict = null
   this.selectedTaluka = null
   this.selectedVillage = null
@@ -77,7 +78,7 @@ onLevelSelect(){
   )
 
 
-  this.displayBoundryLayer()
+  // this.displayBoundryLayer()
 }
 setDefaultView(){
   this.selectedLevel = 1
@@ -89,7 +90,7 @@ setDefaultView(){
   this.cqlVillage = []
   this.tableData = []
   this.totalRecords= 0
-  this.displayBoundryLayer()
+  // this.displayBoundryLayer()
   this.onLevelSelect()
 }
   ngOnInit() {
@@ -128,50 +129,50 @@ setDefaultView(){
       layers: [satelliteLayer],
       view: this.view,
     });
-    this.map.on('singleclick', (event: any) => {
+    // this.map.on('singleclick', (event: any) => {
 
-      const viewResolution = this.view.getResolution();
+    //   const viewResolution = this.view.getResolution();
     
-      // 🔥 Only get visible boundary layer
-      const visibleLayer = this.getActiveVisibleBoundaryLayer();
+    //   // 🔥 Only get visible boundary layer
+    //   const visibleLayer = this.getActiveVisibleBoundaryLayer();
     
-      if (!visibleLayer) {
-        console.warn("No visible boundary layer found.");
-        return;
-      }
+    //   if (!visibleLayer) {
+    //     console.warn("No visible boundary layer found.");
+    //     return;
+    //   }
     
-      const source = visibleLayer.getSource();
+    //   const source = visibleLayer.getSource();
     
-      const url = source.getFeatureInfoUrl(
-        event.coordinate,
-        viewResolution,
-        'EPSG:3857',
-        { 'INFO_FORMAT': 'application/json' }
-      );
+    //   const url = source.getFeatureInfoUrl(
+    //     event.coordinate,
+    //     viewResolution,
+    //     'EPSG:3857',
+    //     { 'INFO_FORMAT': 'application/json' }
+    //   );
     
-      if (!url) return;
+    //   if (!url) return;
     
-      fetch(url)
-        .then((res:any) => res.json())
-        .then((data:any) => {
-          if (!data.features?.length) return;
+    //   fetch(url)
+    //     .then((res:any) => res.json())
+    //     .then((data:any) => {
+    //       if (!data.features?.length) return;
     
-          const props = data.features[0].properties;
-          console.log(props);
+    //       const props = data.features[0].properties;
+    //       console.log(props);
           
-          // 🔥 Now no mismatch - only valid level returned
-          if (props?.lgd_v) {
-            this.displayHighlightedBoundary(props.lgd_v, "GR:india_villages", "lgd_v");
-          } else if (props?.lgd_t) {
-            this.displayHighlightedBoundary(props.lgd_t, "GR:india_taluka", "lgd_t");
-          } else if (props?.lgd_d) {
-            this.displayHighlightedBoundary(props.lgd_d, "GR:india_district", "lgd_d");
-          } else if (props?.lgd_s) {
-            this.displayHighlightedBoundary(props.lgd_s, "GR:india_states", "lgd_s");
-          }
-        })
-        .catch((err:any) => console.error("Feature Info Error", err));
-    });
+    //       // 🔥 Now no mismatch - only valid level returned
+    //       if (props?.lgd_v) {
+    //         this.displayHighlightedBoundary(props.lgd_v, "GR:india_villages", "lgd_v");
+    //       } else if (props?.lgd_t) {
+    //         this.displayHighlightedBoundary(props.lgd_t, "GR:india_taluka", "lgd_t");
+    //       } else if (props?.lgd_d) {
+    //         this.displayHighlightedBoundary(props.lgd_d, "GR:india_district", "lgd_d");
+    //       } else if (props?.lgd_s) {
+    //         this.displayHighlightedBoundary(props.lgd_s, "GR:india_states", "lgd_s");
+    //       }
+    //     })
+    //     .catch((err:any) => console.error("Feature Info Error", err));
+    // });
     
 
     this.setDefaultView()
@@ -224,15 +225,13 @@ getActiveVisibleBoundaryLayer(){
         this.talukaList = response
       })
       this.cqlDistrict = [this.selectedDistrict.lgdcode ]
-      this.displayBoundryLayer()
+      // this.displayBoundryLayer()
       this.selectedlayerNameForZoom = 'lgd_d'
       this.getFeaturesExtends(this.selectedDistrict.lgdcode )
       this.getgisgoldenrecorddynamicgroup()
     }
     else{
-      this.cqlDistrict = []
       this.setDefaultView()
-    
       this.getgisgoldenrecorddynamicgroup()
     }
 
@@ -250,14 +249,12 @@ getActiveVisibleBoundaryLayer(){
         this.villageList = response
       })
       this.cqlSubDistrict = [this.selectedTaluka.lgdcode]
-      this.displayBoundryLayer()
       this.selectedlayerNameForZoom = 'lgd_t'
       this.getFeaturesExtends(this.selectedTaluka.lgdcode )
       this.getgisgoldenrecorddynamicgroup()
     }
     else{
-      this.cqlSubDistrict = []
-      this.displayBoundryLayer()
+  
       this.selectedlayerNameForZoom = 'lgd_d'
       this.getFeaturesExtends(this.selectedDistrict.lgdcode )
       this.getgisgoldenrecorddynamicgroup()
@@ -271,14 +268,13 @@ getActiveVisibleBoundaryLayer(){
     this.selectedLevel = null
     if(this.selectedVillage){
       this.cqlVillage = [this.selectedVillage.lgdcode]
-      this.displayBoundryLayer()
+
       this.selectedlayerNameForZoom = 'lgd_v'
       this.getFeaturesExtends(this.selectedVillage.lgdcode )
       this.getgisgoldenrecorddynamicgroup()
     }
     else{
         this.cqlVillage = []
-        this.displayBoundryLayer()
         this.selectedlayerNameForZoom = 'lgd_t'
       this.getFeaturesExtends(this.selectedTaluka.lgdcode )
       this.getgisgoldenrecorddynamicgroup()
@@ -320,349 +316,294 @@ resetPanel(){
   this.selectedDomicileOption = null
   this.selectedDisabilityOption = null
   this.isAgeSelected = false
-  this.selectedIncomeList = []
-  this.selectedMartialStatusList = []
-  this.isIncomeSelected = false
-  this.isIncomeSelected = false
-}
-
-// Selection from dropdown
-getgisgoldenrecorddynamicgroup() {
-  this.tableData = []
-  this.totalRecords= 0
-  if (this.highlightBoundaryLayer) {
-    this.map.removeLayer(this.highlightBoundaryLayer);
-  }
-  if (this.countLabelLayer) { 
-    this.map.removeLayer(this.countLabelLayer); this.countLabelLayer = null;
-  }
-
-  const payload: any = {
-    groupby: "",
-    district: "",
-    taluka: "",
-    village: "",
-    gender: "",
-    rationcardtype: "",
-    domicileflag: "",
-    disabilityflag: "",
-    age: "",
-    maritalstatus: "",
-    income: ""
-  };
-
-  // READ SELECTED VALUES
-  const selDistrict = this.selectedDistrict?.lgdcode ?? null;
-  const selTaluka = this.selectedTaluka?.lgdcode ?? null;
-  const selVillage = this.selectedVillage?.lgdcode ?? null;
-
-  // LOCATION SELECTION LOGIC
-  if (selDistrict && selTaluka && selVillage) {
-    payload.village = String(selVillage);
-  } else if (selDistrict && selTaluka) {
-    payload.taluka = String(selTaluka);
-  } else if (selDistrict) {
-    payload.district = String(selDistrict);
-  }
-
-  // OTHER FILTERS
-  payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-  payload.gender = this.getSelectedGenderString();
-
-  if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
-    payload.domicileflag = String(this.selectedDomicileOption);
-
-  if (this.selectedDisabilityOption || this.selectedDisabilityOption === 0)
-    payload.disabilityflag = String(this.selectedDisabilityOption);
-
-    payload.age = this.makeRangeString(this.ageGroups);
-    payload.maritalstatus = this.makeCommaString(this.selectedMartialStatusList);
-    payload.income = this.selectedIncomeList ? this.selectedIncomeList.join(",") : "";
-
-  // BEGIN GROUPBY BUILDING
-  const groupParts: string[] = [];
-
-  // ----------------------------------------
-  // 1️⃣ DISTRICT / TALUKA / VILLAGE MAPPING
-  // ----------------------------------------
-  const keys = Object.keys(payload);
-
-  for (const k of keys) {
-    if (k === "groupby") continue;
-    const val = payload[k];
-    if (!val || String(val).trim() === "") continue;
-
-    if (k === "district") {
-      groupParts.push("district", "districtcode", "taluka", "talukacode");
-      continue;
-    }
-    if (k === "taluka") {
-      groupParts.push("taluka", "talukacode", "village", "villagecode");
-      continue;
-    }
-    if (k === "village") {
-      groupParts.push("village", "villagecode");
-      continue;
-    }
-  }
-
-  // ----------------------------------------
-  // 2️⃣ APPLY EXCHANGE KEY MAPPING
-  // ----------------------------------------
-  const exchangeMap = [
-    { key: 'rationcardtype', exchangeKey: 'ration_card_type' },
-    { key: 'domicileflag', exchangeKey: 'domicile_flag' },
-    { key: 'disabilityflag', exchangeKey: 'disability_flag' },
-    { key: 'age', exchangeKey: 'age_local' },
-    { key: 'maritalstatus', exchangeKey: 'marital_status' },
-    { key: 'income', exchangeKey: 'individual_annual_income' }
-  ];
-
-  exchangeMap.forEach(m => {
-    const val = payload[m.key];
-    if (val !== null && val !== undefined && String(val).trim() !== "") {
-      groupParts.push(m.exchangeKey);
-    }
-  });
-
-  // ✨ Remove duplicates
-  const finalParts = [...new Set(groupParts)];
-
-  // FINAL JOIN
-  payload.groupby = finalParts.join(",");
-
-  console.log("FINAL PAYLOAD:", payload);
-
-  // ----------------------------------------
-  // 3️⃣ API CALL
-  // ----------------------------------------
-  this.commanService.getgisgoldenrecorddynamicgroup(payload).subscribe((res: any) => {
-    const response = JSON.parse(res.data[0].fn_get_gis_golden_record_dynamic_group_v1);
-    if (!response){
-      this.tableData = []
-      this.totalRecords = 0 
-      if (this.highlightBoundaryLayer) {
-        this.map.removeLayer(this.highlightBoundaryLayer);
-      }
-      if (this.countLabelLayer) { 
-        this.map.removeLayer(this.countLabelLayer); this.countLabelLayer = null;
-      } 
-      return;
-    }
-
-    // ----------------------------------------
-    // 4️⃣ DISPLAY LAYER
-    // ----------------------------------------
-    if (payload.district !== "") {
-      this.selectedlayerNameForCount = "lgd_t";
-      this.displayCountAndBoundary(response, "GR:india_taluka", "lgd_t", "talukacode");
-    }
-    else if (payload.taluka !== "") {
-      this.selectedlayerNameForCount = "lgd_v";
-      this.displayCountAndBoundary(response, "GR:india_villages", "lgd_v", "villagecode");
-    }
-    else if (payload.village !== "") {
-      this.selectedlayerNameForCount = "lgd_v";
-      this.displayCountAndBoundary(response, "GR:india_villages", "lgd_v", "villagecode");
-    }
-    else {
-      // fallback
-      this.selectedlayerNameForCount = "lgd_d";
-      this.displayCountAndBoundary(response, "GR:india_district", "lgd_d", "districtcode");
-    }
-  });
 }
 
 
+  getgisgoldenrecorddynamicgroup() {
+    this.resetPanel()
+    // initial payload template
+    const payload: any = {
+      groupby: "",
+      district: "",
+      taluka: "",
+      village: "",
+      gender: "",
+      rationcardtype: "",
+      domicileflag: "",
+      disabilityflag: "",
+      age: "",
+      maritalstatus: "",
+      income: ""
+    };
   
-// selection from filter panel
-getgisgoldenrecorddynamicgroupWithFilter() {
-  this.tableData = []
-  this.totalRecords= 0
-  if (this.highlightBoundaryLayer) {
-    this.map.removeLayer(this.highlightBoundaryLayer);
-  }
-  if (this.countLabelLayer) { 
-    this.map.removeLayer(this.countLabelLayer); this.countLabelLayer = null;
-  }
+    // --- Read selected values from your component (adjust names if needed) ---
+    const selDistrict = this.selectedDistrict?.lgdcode ?? null;   // e.g. "487" or number
+    const selTaluka = this.selectedTaluka?.lgdcode ?? null;       // e.g. "4265"
+    const selVillage = this.selectedVillage?.lgdcode ?? null;     // e.g. "564673"
   
-  const payload: any = {
-    groupby: "",
-    district: "",
-    taluka: "",
-    village: "",
-    gender: "",
-    rationcardtype: "",
-    domicileflag: "",
-    disabilityflag: "",
-    age: "",
-    maritalstatus: "",
-    income: ""
-  };
-
-  // READ SELECTED VALUES
-  const selDistrict = this.selectedDistrict?.lgdcode ?? null;
-  const selTaluka = this.selectedTaluka?.lgdcode ?? null;
-  const selVillage = this.selectedVillage?.lgdcode ?? null;
-
-  // -----------------------------------------
-  // 1️⃣ LOCATION SELECTION LOGIC
-  // -----------------------------------------
-  if (selDistrict && selTaluka && selVillage) {
-    payload.village = String(selVillage);
-  }
-  else if (selDistrict && selTaluka) {
-    payload.taluka = String(selTaluka);
-  }
-  else if (selDistrict) {
-    payload.district = String(selDistrict);
-  }
-
-  // -----------------------------------------
-  // 2️⃣ FILTER VALUES
-  // -----------------------------------------
-  payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-  payload.gender = this.getSelectedGenderString();
-
-  if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
-    payload.domicileflag = String(this.selectedDomicileOption);
-
-  if (this.selectedDisabilityOption || this.selectedDisabilityOption === 0)
-    payload.disabilityflag = String(this.selectedDisabilityOption);
-
-  payload.age = this.makeRangeString(this.ageGroups);
-  payload.maritalstatus = this.makeCommaString(this.selectedMartialStatusList);
-  payload.income = this.selectedIncomeList ? this.selectedIncomeList.join(",") : "";
-
-  // -----------------------------------------
-  // 3️⃣ BUILD GROUPBY (Dynamic)
-  // -----------------------------------------
-  const groupParts: string[] = [];
-
-  // LOCATION KEYS
-  for (const key of Object.keys(payload)) {
-    if (key === "groupby") continue;
-    const val = payload[key];
-    if (!val || String(val).trim() === "") continue;
-
-    if (key === "district") {
-      groupParts.push("district", "districtcode" , "taluka", "talukacode");
-      continue;
-    }
-    if (key === "taluka") {
-      groupParts.push("taluka", "talukacode", "village", "villagecode");
-      continue;
-    }
-    if (key === "village") {
-      groupParts.push("village", "villagecode");
-      continue;
+    // --- Apply selection logic ---
+    if (selDistrict && selTaluka && selVillage) {
+      // if all three selected -> set only village, clear district & taluka
+      payload.village = String(selVillage);
+      payload.taluka = "";
+      payload.district = "";
+    } else if (selDistrict && selTaluka) {
+      // district + taluka selected -> set taluka, clear district
+      payload.taluka = String(selTaluka);
+      payload.district = "";
+      payload.village = "";
+    } else if (selDistrict) {
+      // only district selected
+      payload.district = String(selDistrict);
+      payload.taluka = "";
+      payload.village = "";
+    } else {
+      // none selected -> keep all empty (or you can set defaults)
+      payload.district = "";
+      payload.taluka = "";
+      payload.village = "";
     }
 
-    // Add gender normally (not part of special mapping)
-    if (key === "gender") {
-      groupParts.push("gender");
+    payload.rationcardtype = this.getSelectedrationCardCheckboxString();
+    payload.gender = this.getSelectedGenderString();
+    if(this.selectedDomicileOption || this.selectedDomicileOption == 0){
+      payload.domicileflag = String(this.selectedDomicileOption)
     }
-  }
-
-  // -----------------------------------------
-  // 4️⃣ APPLY YOUR SPECIAL MAPPING RULES
-  // -----------------------------------------
-  const exchangeMap = [
-    { key: 'rationcardtype', exchangeKey: 'ration_card_type' },
-    { key: 'domicileflag', exchangeKey: 'domicile_flag' },
-    { key: 'disabilityflag', exchangeKey: 'disability_flag' },
-    { key: 'age', exchangeKey: 'age_local' },
-    { key: 'maritalstatus', exchangeKey: 'marital_status' },
-    { key: 'income', exchangeKey: 'individual_annual_income' }
-  ];
-
-  exchangeMap.forEach(m => {
-    const v = payload[m.key];
-    if (v !== null && v !== undefined && String(v).trim() !== "") {
-      groupParts.push(m.exchangeKey);
+    if(this.selectedDisabilityOption || this.selectedDisabilityOption == 0){
+      payload.disabilityflag = String(this.selectedDisabilityOption)
     }
-  });
-
-  // -----------------------------------------
-  // 5️⃣ DEFAULT GROUPBY (WHEN NOTHING SELECTED)
-  // -----------------------------------------
-  if (!selDistrict && !selTaluka && !selVillage) {
-    if (this.selectedLevel == 1) {
-      groupParts.push("district", "districtcode" );
-    } else if (this.selectedLevel == 2) {
-      groupParts.push("taluka", "talukacode");
-    }
-  }
-
-  // REMOVE DUPLICATES
-  const finalParts = [...new Set(groupParts)];
-
-  payload.groupby = finalParts.join(",");
-
-  console.log("FINAL PAYLOAD:", payload);
-
-  // -----------------------------------------
-  // 6️⃣ API CALL
-  // -----------------------------------------
-  this.commanService.getgisgoldenrecorddynamicgroup(payload).subscribe((res: any) => {
-
-    const response = JSON.parse(res.data[0].fn_get_gis_golden_record_dynamic_group_v1);
-    console.log(response);
+    payload.age = this.makeRangeString(this.ageGroups)
+    console.log(this.selectedIncomeList);
     
-    if (!response){
-      this.tableData = []
-      this.totalRecords = 0 
-      if (this.highlightBoundaryLayer) {
-        this.map.removeLayer(this.highlightBoundaryLayer);
+    // --- Build groupby string dynamically ---
+    const groupParts: any = [];
+  
+    // iterate keys in payload in deterministic order
+    const keys = Object.keys(payload);
+    for (const k of keys) {
+      if (k === "groupby") continue;
+      const val = payload[k];
+  
+      // skip empty values
+      if (val === null || val === undefined || String(val).trim() === "") continue;
+  
+      // special handling for district/taluka/village
+      if (k === "district") {
+        groupParts.push("district", "districtcode" , "taluka", "talukacode");
+        continue;
       }
-      if (this.countLabelLayer) { 
-        this.map.removeLayer(this.countLabelLayer); this.countLabelLayer = null;
+      if (k === "taluka") {
+        groupParts.push("taluka", "talukacode", "village", "villagecode");
+        continue;
       }
-      return
-    } ;
+      if (k === "village") {
+        groupParts.push("village", "villagecode");
+        continue;
+      }
 
-    // ---------------------------------------
-    // 7️⃣ LAYER LOGIC
-    // ---------------------------------------
-    let layer = "";
-    let lgdField = "";
+      groupParts.push(k);
+    }
+  
+    // remove duplicates (just in case) while preserving order
+    const seen = new Set<string>();
+    const finalParts: any = [];
+    for (const p of groupParts) {
+      if (!seen.has(p)) {
+        if(p !== 'age'){
+          finalParts.push(p);
+          seen.add(p);
+        }
+        
+      }
+    }
+  
+    
+    payload.groupby = finalParts.join(",");
+    // --- payload ready ---
+    console.log("FINAL PAYLOAD:", payload);
 
-    switch (true) {
-      case !!this.selectedVillage:
-        layer = "GR:india_villages";
-        lgdField = "villagecode";
-        this.selectedlayerNameForCount = "lgd_v";
-        break;
+    this.commanService.getgisgoldenrecorddynamicgroup(payload).subscribe((res:any)=>{
+      console.log(JSON.parse(res.data[0].fn_get_gis_golden_record_dynamic_group_v1));
+      let response = JSON.parse(res.data[0].fn_get_gis_golden_record_dynamic_group_v1)
+      if(response){
+        if(payload.district !== ""){
+          this.selectedlayerNameForCount = 'lgd_t'
+          this.displayCountAndBoundary(response,"GR:india_taluka", this.selectedlayerNameForCount , 'talukacode')
+         
+        }
+        else if(payload.taluka !== ""){
+          this.selectedlayerNameForCount = 'lgd_v'
+          this.displayCountAndBoundary(response,"GR:india_villages", this.selectedlayerNameForCount , 'villagecode')
+        }
+        else if(payload.village !== ""){
+          this.selectedlayerNameForCount = 'lgd_v'
+          this.displayCountAndBoundary(response,"GR:india_villages", this.selectedlayerNameForCount , 'villagecode')
+        }
+      }
+      else{
+        // this.commanService.showWarn('Data not available')
+      }
 
-      case !!this.selectedTaluka:
-        layer = "GR:india_villages";
-        lgdField = "villagecode";
-        this.selectedlayerNameForCount = "lgd_v";
-        break;
+    })
+   
+  }
+  
 
-      case !!this.selectedDistrict:
-        layer = "GR:india_taluka";
-        lgdField = "talukacode";
-        this.selectedlayerNameForCount = "lgd_t";
-        break;
+  getgisgoldenrecorddynamicgroupWithFilter() {
 
-      default:
-        if (this.selectedLevel == 1) {
-          layer = "GR:india_district";
-          lgdField = "districtcode";
-          this.selectedlayerNameForCount = "lgd_d";
-        } else {
+    const payload: any = {
+      groupby: "",
+      district: "",
+      taluka: "",
+      village: "",
+      gender: "",
+      rationcardtype: "",
+      domicileflag: "",
+      disabilityflag: "",
+      age: "",
+      maritalstatus: "",
+      income: ""
+    };
+  
+    // Read selected hierarchy values
+    const selDistrict = this.selectedDistrict?.lgdcode ?? null;
+    const selTaluka = this.selectedTaluka?.lgdcode ?? null;
+    const selVillage = this.selectedVillage?.lgdcode ?? null;
+  
+    // -----------------------------------------
+    // 1️⃣ LOCATION SELECTION LOGIC
+    // -----------------------------------------
+    if (selDistrict && selTaluka && selVillage) {
+      payload.village = String(selVillage);
+    }
+    else if (selDistrict && selTaluka) {
+      payload.taluka = String(selTaluka);
+    }
+    else if (selDistrict) {
+      payload.district = String(selDistrict);
+    }
+  
+    // -----------------------------------------
+    // 2️⃣ ADD FILTERS
+    // -----------------------------------------
+    payload.rationcardtype = this.getSelectedrationCardCheckboxString();
+    payload.gender = this.getSelectedGenderString();
+  
+    if (this.selectedDomicileOption || this.selectedDomicileOption === 0) {
+      payload.domicileflag = String(this.selectedDomicileOption);
+    }
+  
+    if (this.selectedDisabilityOption || this.selectedDisabilityOption === 0) {
+      payload.disabilityflag = String(this.selectedDisabilityOption);
+    }
+  
+    payload.age = this.makeRangeString(this.ageGroups);
+  
+    // -----------------------------------------
+    // 3️⃣ BUILD GROUPBY (Dynamic)
+    // -----------------------------------------
+    const groupParts: string[] = [];
+  
+    for (const key of Object.keys(payload)) {
+      if (key === "groupby") continue;
+  
+      const val = payload[key];
+      if (!val || String(val).trim() === "") continue;
+  
+      if (key === "district") {
+        groupParts.push("district", "districtcode");
+        continue;
+      }
+      if (key === "taluka") {
+        groupParts.push("taluka", "talukacode");
+        continue;
+      }
+      if (key === "village") {
+        groupParts.push("village", "villagecode");
+        continue;
+      }
+  
+      if (key !== "age") groupParts.push(key);
+    }
+  
+    if (!selDistrict && !selTaluka && !selVillage) {
+      if (this.selectedLevel == 1) {
+        groupParts.push("district,districtcode")
+      
+      } else if (this.selectedLevel == 2) {
+        groupParts.push("taluka,talukacode")
+      }
+    }
+    // unique
+    const seen = new Set<string>();
+    const finalParts = groupParts.filter(p => {
+      if (!seen.has(p)) {
+        seen.add(p);
+        return true;
+      }
+      return false;
+    });
+  
+    payload.groupby = finalParts.join(",");
+  
+    // -----------------------------------------
+    // 4️⃣ OVERRIDE GROUPBY WHEN NOTHING SELECTED
+    // -----------------------------------------
+   
+  
+    console.log("FINAL PAYLOAD:", payload);
+  
+    // -----------------------------------------
+    // 5️⃣ API CALL
+    // -----------------------------------------
+    this.commanService.getgisgoldenrecorddynamicgroup(payload).subscribe((res: any) => {
+  
+      const response = JSON.parse(res.data[0].fn_get_gis_golden_record_dynamic_group_v1);
+  
+      if (!response) return;
+  
+      // ---------------------------------------
+      // 6️⃣ LAYER LOGIC FOR DISPLAY
+      // ---------------------------------------
+      let layer = "";
+      let lgdField = "";
+  
+      switch (true) {
+  
+        case !!this.selectedVillage:
+          layer = "GR:india_villages";
+          lgdField = "villagecode";
+          this.selectedlayerNameForCount = "lgd_v";
+          break;
+  
+        case !!this.selectedTaluka:
+          layer = "GR:india_villages";
+          lgdField = "villagecode";
+          this.selectedlayerNameForCount = "lgd_v";
+          break;
+  
+        case !!this.selectedDistrict:
           layer = "GR:india_taluka";
           lgdField = "talukacode";
           this.selectedlayerNameForCount = "lgd_t";
-        }
-        break;
-    }
-
-    this.displayCountAndBoundary(response, layer, this.selectedlayerNameForCount, lgdField);
-  });
-}
-
+          break;
+  
+        default:
+          if (this.selectedLevel == 0) {
+            layer = "GR:india_district";
+            lgdField = "districtcode";
+            this.selectedlayerNameForCount = "lgd_d";
+          } else {
+            layer = "GR:india_taluka";
+            lgdField = "talukacode";
+            this.selectedlayerNameForCount = "lgd_t";
+          }
+          break;
+      }
+  
+      this.displayCountAndBoundary(response, layer, this.selectedlayerNameForCount, lgdField);
+    });
+  }
   
 
 largeMapView:boolean = false
@@ -736,15 +677,13 @@ largeMapView:boolean = false
         activeLevel = 'village';
       } else if (talukas && talukas.length > 0) {
         // taluka present but no village -> show villages inside these talukas (special)
+        // we'll represent this by setting activeLevel = 'village' but mark a flag to use taluka->village filter
         activeLevel = 'village';
       } else if (districts && districts.length > 0) {
         // district present but no taluka/village -> show talukas inside these districts (special)
         activeLevel = 'taluka';
       } else if (states && states.length > 0) {
-        // **CHANGE HERE**:
-        // When only states are provided (no lower level CQL), show DISTRICTS of those states (not the state boundary).
-        // So we set activeLevel to 'district' and will apply districtCql = lgd_s IN (...)
-        activeLevel = 'district';
+        activeLevel = 'state';
       } else {
         activeLevel = null;
       }
@@ -772,14 +711,14 @@ largeMapView:boolean = false
       districtCql = vals ? `lgd_s IN (${vals})` : '';
       lgdCode = states[0] ?? null;
       this.selectedlayerNameForZoom = 'lgd_s';
-      this.selectedlayerNameForCount = 'lgd_d';
+      this.selectedlayerNameForCount = 'lgd_d'
     } else if (selLevel === 'lgd_t') {
       // show talukas of selected states (only taluka layer)
       const vals = formatValues(states);
       talukaCql = vals ? `lgd_s IN (${vals})` : '';
       lgdCode = states[0] ?? null;
       this.selectedlayerNameForZoom = 'lgd_s';
-      this.selectedlayerNameForCount = 'lgd_d';
+      this.selectedlayerNameForCount = 'lgd_d'
     } else {
       // selectedLevel is null -> apply CQL according to explicit arrays and new rules
   
@@ -789,7 +728,7 @@ largeMapView:boolean = false
         villageCql = vals ? `lgd_v IN (${vals})` : '';
         lgdCode = villages[0];
         this.selectedlayerNameForZoom = 'lgd_v';
-        this.selectedlayerNameForCount = 'lgd_v';
+        this.selectedlayerNameForCount = 'lgd_v'
         // visibility will be villages only (handled below)
       }
       // Case B: talukas explicitly selected (but no villages) -> show villages inside those talukas
@@ -800,7 +739,7 @@ largeMapView:boolean = false
         lgdCode = talukas[0];
         // mark selectedlayerNameForZoom as taluka because selection came from taluka
         this.selectedlayerNameForZoom = 'lgd_t';
-        this.selectedlayerNameForCount = 'lgd_v';
+        this.selectedlayerNameForCount = 'lgd_v'
         // visibility will be villages only (handled below)
       }
       // Case C: districts explicitly selected (but no taluka/village) -> show talukas inside those districts
@@ -810,23 +749,24 @@ largeMapView:boolean = false
         talukaCql = vals ? `lgd_d IN (${vals})` : '';
         lgdCode = districts[0];
         this.selectedlayerNameForZoom = 'lgd_d';
-        this.selectedlayerNameForCount = 'lgd_t';
+        this.selectedlayerNameForCount = 'lgd_t'
         // visibility will be talukas only (handled below)
       }
-      // Case D: states provided only (no districts/talukas/villages) -> show districts of those states
-      else if (states && states.length > 0) {
+      // Case D: no explicit lower-level CQL -> fallback to priority (village>taluka>district>state)
+      else if (activeLevel === 'village') {
+        // This branch occurs if no explicit arrays but activeLevel derived from something else (unlikely)
+        // leave empty or implement as needed
+      } else if (activeLevel === 'taluka') {
+        // no explicit arrays but taluka-level active -> similar to normal behavior (not common here)
+      } else if (activeLevel === 'district') {
+        // general district behavior if districts array was used earlier
+      } else if (activeLevel === 'state') {
         const vals = formatValues(states);
-        // NOTE: changed to set districtCql (lgd_s filter) instead of stateCql,
-        // so we will display districts belonging to these states (not the state polygons).
+        stateCql = vals ? `lgd_s IN (${vals})` : '';
         districtCql = vals ? `lgd_s IN (${vals})` : '';
         lgdCode = states[0] ?? null;
         this.selectedlayerNameForZoom = 'lgd_s';
-        this.selectedlayerNameForCount = 'lgd_d';
-        // activeLevel is already set to 'district' above
-      }
-      // Case E: fallback - nothing explicit
-      else {
-        // leave cql empty; activeLevel may be null
+        this.selectedlayerNameForCount = 'lgd_d'
       }
     }
   
@@ -900,10 +840,6 @@ largeMapView:boolean = false
         } else if (districts && districts.length > 0) {
           // district selected (no taluka/village) -> show talukas inside those districts
           visible = layerName === 'GR:india_taluka';
-        } else if (states && states.length > 0) {
-          // IMPORTANT: when only states supplied, we want districts of those states (not state polygons),
-          // so make only district layer visible
-          visible = layerName === 'GR:india_district';
         } else {
           // fallback to standard visibilityMap based on activeLevel
           if (activeLevel) {
@@ -926,7 +862,6 @@ largeMapView:boolean = false
       bLayer.layer = layer;
     });
   }
-  
   
   
   
@@ -995,17 +930,12 @@ largeMapView:boolean = false
     if (this.highlightBoundaryLayer) {
       this.map.removeLayer(this.highlightBoundaryLayer);
     }
-    let url =  `${this.URL_WFS}?service=WFS&version=1.1.0&request=GetFeature&typeName=${layerName}&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=${leval} IN (${code})`
-
-    if('lgd_d' === leval) {
-
-    }
-  // let url =  `${this.URL_WFS}?service=WFS&version=1.1.0&request=GetFeature&typeName=${layerName}&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=${leval} IN (${code})`
+  
     // Create vector source from WFS or GeoJSON URL with filter for lgd_s
     const vectorSource = new VectorSource({
       format: new GeoJSON(),
       url: (extent) => {
-        return url;
+        return `${this.URL_WFS}?service=WFS&version=1.1.0&request=GetFeature&typeName=${layerName}&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=${leval} IN (${code})`;
       },
       strategy: bboxStrategy // import or define bboxStrategy to load by extent if large data
     });
@@ -1055,19 +985,17 @@ largeMapView:boolean = false
   getTableDetailByLgdCode(code:any, leval:any){
     this.tableData = []
     this.totalRecords= 0
-    const payload: any = {
-      groupby: "",
-      district: "",
-      taluka: "",
-      village: "",
-      gender: "",
-      rationcardtype: "",
-      domicileflag: "",
-      disabilityflag: "",
-      age: "",
-      maritalstatus: "",
-      income: ""
-    };
+    let payload = {
+      "groupby": "",
+      "district": "",
+      "taluka":  "",
+      "village":  "",
+      "gender": "",
+      "rationcardtype":  "",
+      "domicileflag": "",
+      "disabilityflag":  "",
+      "age": ""
+    }
 
     if(leval == "lgd_d"){
       payload.district = String(code)
@@ -1078,42 +1006,6 @@ largeMapView:boolean = false
     else if(leval == "lgd_v"){
       payload.village = String(code)
     }
-
-  // -----------------------------------------
-  // 2️⃣ FILTER VALUES
-  // -----------------------------------------
-  payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-  payload.gender = this.getSelectedGenderString();
-
-  if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
-    payload.domicileflag = String(this.selectedDomicileOption);
-
-  if (this.selectedDisabilityOption || this.selectedDisabilityOption === 0)
-    payload.disabilityflag = String(this.selectedDisabilityOption);
-
-  payload.age = this.makeRangeString(this.ageGroups);
-  payload.maritalstatus = this.makeCommaString(this.selectedMartialStatusList);
-  payload.income = this.selectedIncomeList ? this.selectedIncomeList.join(",") : "";
-
-      // -----------------------------------------
-  // 4️⃣ APPLY YOUR SPECIAL MAPPING RULES
-  // -----------------------------------------
-    const groupParts: string[] = [];
-    const exchangeMap = [
-      { key: 'rationcardtype', exchangeKey: 'ration_card_type' },
-      { key: 'domicileflag', exchangeKey: 'domicile_flag' },
-      { key: 'disabilityflag', exchangeKey: 'disability_flag' },
-      { key: 'age', exchangeKey: 'age_local' },
-      { key: 'maritalstatus', exchangeKey: 'marital_status' },
-      { key: 'income', exchangeKey: 'individual_annual_income' }
-    ];
-
-    exchangeMap.forEach(m => {
-      const v = payload[m.key];
-      if (v !== null && v !== undefined && String(v).trim() !== "") {
-        groupParts.push(m.exchangeKey);
-      }
-    });
 
     this.commanService.loaderSpinShow()
     this.commanService.getgislistfilter(payload).subscribe((res:any)=>{
@@ -1264,17 +1156,13 @@ makeRangeString(arr: any[]): string {
     .map((item:any) => `${item.from}-${item.to}`)
     .join(","); // if multiple ranges present
 }
-makeCommaString(list: string[]): string {
-  if (!list || !Array.isArray(list)) return "";
-  return list.join(",");
-}
 
 isIncomeSelected: boolean = false;
 incomeOption:any =[
-  {label:'0 - 50000' , value:'0-50000'},
-  {label:'50000 - 150000' , value:'50000-150000'},
-  {label:'150000 - 500000' , value:'150000-500000'},
-  {label:'500000 - 1000000' , value:'500000-1000000'},
+  {label:'0 - 50000' , value:'0 - 50000'},
+  {label:'50000 - 150000' , value:'50000 - 150000'},
+  {label:'150000 - 500000' , value:'150000 - 500000'},
+  {label:'500000 - 1000000' , value:'500000 - 1000000'},
 ]
 selectedIncomeList:any = []
 onIncomeCheckboxChange(){
@@ -1286,10 +1174,10 @@ onSelectImcomes(){
 
 
 maritalStatusOptionList:any = [
-  {label:'Single', value:'single'},
-  {label:'Married', value:'married'},
-  {label:'Widowed', value:'widowed'},
-  {label:'Divorced', value:'divorced'}
+  {label:'Single', value:'Single'},
+  {label:'Married', value:'Married'},
+  {label:'Widowed', value:'Widowed'},
+  {label:'Divorced', value:'Divorced'}
 ]
 selectedMartialStatusList:any = []
 onSelectMartialStatus(){
@@ -1309,8 +1197,9 @@ boundaryClickListener:any
 clickedBoundaryDetails: any = null; // will hold clicked boundary's properties + totalcount
 
 displayCountAndBoundary(sampleData: any[], layerName: string, leval: string, codeKey:any) {
-  return;
   if (!Array.isArray(sampleData) || !sampleData.length) return;
+  
+ 
   if (this.highlightBoundaryLayer) {
     this.map.removeLayer(this.highlightBoundaryLayer);
   }
@@ -1320,7 +1209,7 @@ displayCountAndBoundary(sampleData: any[], layerName: string, leval: string, cod
   // cleanup previous layers / listener
   try {
     if (Array.isArray(this.boundaryLayers) && this.boundaryLayers.length) {
-      this.boundaryLayers.forEach((l :any)=> this.map.removeLayer(l));
+      this.boundaryLayers.forEach(l => this.map.removeLayer(l));
     }
     this.boundaryLayers = [];
 
@@ -1360,8 +1249,24 @@ displayCountAndBoundary(sampleData: any[], layerName: string, leval: string, cod
 
   // 3) create unique codes string for CQL IN(...)
   const uniqueCodes = Array.from(new Set(validItems.map((it: any) => String(it[codeKey]).trim())));
+ 
   const codesStr = uniqueCodes.join(',');
+  const codesArray = codesStr.split(',').map(Number);           // e.g. [466, 467, 468, ...]
+const totalCountsArray = sampleData.map(x => Number(x.totalcount))
+    const countsObj: any = {};
+  codesArray.forEach((code, i) => {
+    countsObj[code] = totalCountsArray[i];
+  });
 
+  const payload = {
+    layer: layerName,
+    attribute: leval,
+    counts: countsObj,
+  };
+  console.log(payload);
+  this.setSldData(payload)
+
+  return;
   // 4) create label layer (counts)
   const labelSource = new VectorSource();
   this.countLabelLayer = new VectorLayer({
@@ -1522,9 +1427,88 @@ displayCountAndBoundary(sampleData: any[], layerName: string, leval: string, cod
 }
 
 
+setSldData(payload: any) {
+  // const countsObj: any = {};
+  // codesArray.forEach((code, i) => {
+  //   countsObj[code] = totalCountsArray[i];
+  // });
+
+  // const payload = {
+  //   layer: layerName,
+  //   attribute: leval,
+  //   counts: countsObj,
+  // };
+  // console.log(payload);
+  // this.setSldData(payload)
+    console.log(payload)
+
+  this.commanService.loaderSpinHide();
+  // this.sldArray[0]
+  this.commanService.getGTsldUrl(payload).subscribe(
+    (res) => {
+      this.addGtColorFillSldLayer(res.file_url);
+    },
+    (error: any) => {
+      console.error("Error fetching SLD URL:", error);
+
+      this.commanService.loaderSpinHide();
+    }
+  );
+}
+
+sldLayerSource: any; 
+
+// Adds GT color-filled SLD WMS layer to the map and positions it with other layers accordingly
+addGtColorFillSldLayer(sld: any) {
+  this.commanService.loaderSpinHide();
+  if (this.sldLayerSource) {
+    this.map.removeLayer(this.countLabelLayer);
+    this.countLabelLayer = ""
+  }
+  if (this.sldLayerSource) {
+    this.sldLayerSource = "";
+  }
+  this.sldLayerSource = new TileWMS({
+    url: this.URL_WFS,
+    params: {
+      TRANSPARENT: true,
+      FORMAT: "image/png",
+      TILED: true,
+      SLD: `${sld}`,
+      STYLES: undefined,
+    },
+    serverType: "geoserver",
+    crossOrigin: "anonymous",
+  });
+
+  this.countLabelLayer = new TileLayer({ source: this.sldLayerSource });
+  // this.map.removeLayer(this.dynamicBoundaryLayer);
+  this.countLabelLayer.set("layerType", "gtLayer");
+  // this.map.getLayers().setAt(3, this.countLabelLayer)
+  // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer)
+  this.map.getLayers().forEach((layer) => {
+    if (layer.get("layerType") === "tempSetelitInidcesLayer") {
+      // this.map.removeLayer(this.dynamicBoundaryLayer);
+      // this.map.getLayers().setAt(1, this.satelite_indices_Layer_temp)
+      // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
+      this.map.addLayer(this.countLabelLayer);
+    } else if (layer.get("layerType") === "setelitInidcesLayer") {
+      // this.map.removeLayer(this.dynamicBoundaryLayer);
+      // this.map.getLayers().setAt(1, this.satelite_indices_Layer)
+      // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
+      // this.map.getLayers().setAt(3, this.countLabelLayer)
+      this.map.addLayer(this.countLabelLayer);
+    } else {
+      this.map.addLayer(this.countLabelLayer);
+      // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
+    }
+  });
+  // this.gtFilterElement?.hide();
+
+  this.commanService.loaderSpinHide();
+}
 
 
-
-
+ 
 
 }

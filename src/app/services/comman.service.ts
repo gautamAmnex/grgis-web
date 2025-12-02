@@ -226,5 +226,7 @@ export class CommanService {
   preview(payload:any): Observable<any> {
     return this.http.get(`https://gr.amnex.co.in/ai-ml-service/pipeline/v2/preview?path=${payload.fileName}&uuid_a=${payload.id}`);
   }
-  
+  getGTsldUrl(payload: any) {
+    return this.http.post<any>(`${this.baseUrl}/portal/sldxml/get_sld_url`, payload);
+  }  
 }
