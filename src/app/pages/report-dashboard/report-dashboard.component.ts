@@ -1427,30 +1427,33 @@ export class ReportDashboardComponent {
       zIndex: 9999,
     });
     this.map.addLayer(this.countLabelLayer);
-    console.log(sampleData)
+    console.log(sampleData);
     const countsObj = sampleData.reduce((acc, item) => {
       const code = Number(item[codeKey]);
       const cnt = Number(item.totalcount);
-    
+
       acc[code] = (acc[code] || 0) + cnt;
       return acc;
     }, {});
-    
+
     console.log(countsObj);
-    
 
     let newLayerName: any;
     if (layerName === "GR:india_villages") {
-      newLayerName = "krishi-dss:india_villages";
+      // newLayerName = "krishi-dss:india_villages";
+      newLayerName = "GR:india_villages";
     }
     if (layerName === "GR:india_taluka") {
-      newLayerName = "krishi-dss:india_taluka";
+      // newLayerName = "krishi-dss:india_taluka";
+      newLayerName = "GR:india_taluka";
     }
     if (layerName === "GR:india_district") {
-      newLayerName = "krishi-dss:india_district";
+      // newLayerName = "krishi-dss:india_district";
+      newLayerName = "GR:india_district";
     }
     if (layerName === "GR:india_states") {
-      newLayerName = "krishi-dss:india_states";
+      // newLayerName = "krishi-dss:india_states";
+      newLayerName = "GR:india_states";
     }
     const payload = {
       layer: newLayerName,
@@ -1670,6 +1673,7 @@ export class ReportDashboardComponent {
     // this.addGtColorFillSldLayer("")
     this.commanService.getGTsldUrl(payload).subscribe(
       (res) => {
+ 
         this.addGtColorFillSldLayer(res.file_url);
       },
       (error: any) => {
@@ -1681,65 +1685,35 @@ export class ReportDashboardComponent {
   }
 
   sldLayerSource: any;
-
   addGtColorFillSldLayer(sld: any) {
-    console.log("Asdasdas");
-    console.log(sld);
-
-    this.commanService.loaderSpinHide();
-    if (this.sldLayerSource) {
+    // Remove old SLD layer before adding new one
+    if (this.countLabelLayer) {
       this.map.removeLayer(this.countLabelLayer);
-      this.countLabelLayer = "";
+      this.countLabelLayer = null;
+      this.sldLayerSource = null;
     }
-    if (this.sldLayerSource) {
-      this.sldLayerSource = "";
-    }
-    this.sldLayerSource = new TileWMS({
-      url: this.URL_WFS_dss,
-      // url: 'https://preprod-kdss.da.gov.in/geoserver/krishi-dss/wms',
 
+    this.sldLayerSource = new ImageWMS({
+      url: this.URL_WFS,
       params: {
         TRANSPARENT: true,
         FORMAT: "image/png",
-        TILED: true,
-        SLD: ` ${sld}`,
-        // SLD: `https://preprod-krishidss.da.gov.in/krishi-dss-python/portal/sld_files/sld_20251202161728.sld`,
-
+        TILED: false, // <-- make sure not tile labels
+        SLD: `${sld}`,
         STYLES: undefined,
+        VERSION: "1.1.0",
       },
       serverType: "geoserver",
       crossOrigin: "anonymous",
     });
 
-    this.countLabelLayer = new TileLayer({ source: this.sldLayerSource });
-    // this.map.removeLayer(this.dynamicBoundaryLayer);
-    this.countLabelLayer.set("layerType", "gtLayer");
-    // this.map.getLayers().setAt(3, this.countLabelLayer)
-    // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer)
-    // this.map.getLayers().forEach((layer) => {
-    //   if (layer.get("layerType") === "tempSetelitInidcesLayer") {
-    //     // this.map.removeLayer(this.dynamicBoundaryLayer);
-    //     // this.map.getLayers().setAt(1, this.satelite_indices_Layer_temp)
-    //     // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
-    //     this.map.addLayer(this.countLabelLayer);
-    //   } else if (layer.get("layerType") === "setelitInidcesLayer") {
-    //     // this.map.removeLayer(this.dynamicBoundaryLayer);
-    //     // this.map.getLayers().setAt(1, this.satelite_indices_Layer)
-    //     // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
-    //     // this.map.getLayers().setAt(3, this.countLabelLayer)
-    //     this.map.addLayer(this.countLabelLayer);
-    //   } else {
-         
-    //     // this.map.getLayers().setAt(2, this.dynamicBoundaryLayer);
-    //   }
-    // });
-    // this.gtFilterElement?.hide();
-    // this.map.getLayers().setAt(1,this.countLabelLayer)
-    this.map.addLayer(this.countLabelLayer);
-    this.displayBoundryLayer()
-     
+    this.countLabelLayer = new ImageLayer({
+      source: this.sldLayerSource,
+    });
 
-    
-    this.commanService.loaderSpinHide();
+    this.countLabelLayer.set("layerType", "gtLayer");
+    this.map.addLayer(this.countLabelLayer);
+
+    this.displayBoundryLayer();
   }
 }

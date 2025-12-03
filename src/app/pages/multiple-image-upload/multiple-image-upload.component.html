@@ -1,6 +1,6 @@
 <div class="uploadImageBody">
         <div class="upload-container">
-          <h1>Upload ZIP</h1>
+          <h1>Batch Inference - Gender & Age</h1>
       
           <div
             class="dropzone"
@@ -52,49 +52,49 @@
       
         <!-- Details will come below after upload -->
         <div class="detail_container" *ngIf="showDetail">
-               
-                      <p-table
-                      *ngIf="outputDataTable.length > 0"
-                        [value]="outputDataTable"
-                        [paginator]="true"
-                        [rows]="50"
-                        [scrollable]="true" 
-                        [totalRecords]="totalRecords" 
-                        [showCurrentPageReport]="true"
-                        currentPageReportTemplate="{first} - {last} of {totalRecords} items"
-                        [rowsPerPageOptions]="[10, 50 , 100]"
-                        scrollHeight="500px" 
-                        contentStyle="500px" 
-                    >
-                        <ng-template pTemplate="header">
-                            <tr>
-                                    <th>Sr. No</th>
-                                    <th>Preview</th>
-                                    <th>File Name</th>
-                                    <th>Human</th>
-                                    <th>Gender</th>
-                                    <th>Age</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
-                            <tr>
-                                    <td>{{ rowIndex + 1 }}</td>
-                                    <td>
-                                    <!-- <img 
-                                        [src]="data.processed_image"
-                                        alt="Image"
-                                        class="preview-img"
-                                    /> -->
-                                    <i class="pi pi-eye" (click)="click(data)"></i>
-                                    </td>
-                                <td>{{  data?.filename  }}</td>
-                                <td>{{ isHumanText(data.result?.is_human) }}</td>
-                                <td>{{ genderText(data?.result.gender) }}</td>
-                                <td>{{ ageText(data?.result?.age) }}</td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-            </div>
+          <p-table
+            [value]="outputDataTable"
+            (onLazyLoad)="loadData($event)"
+            [lazy]="true"
+            [paginator]="true"
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="[10, 20, 30]"
+            [scrollable]="true"
+            scrollHeight="500px"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="{first} - {last} of {totalRecords} items">
+        
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Sr. No</th>
+                <th>Preview</th>
+                <th>File Name</th>
+                <th>Human</th>
+                <th>Gender</th>
+                <th>Age</th>
+              </tr>
+            </ng-template>
+        
+            <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+              <tr>
+                <td>{{ rowIndex + 1 }}</td>
+                <!-- <td><i class="pi pi-eye" (click)="click(data)"></i></td> -->
+                <td><img 
+                  [src]="data.base64"
+                  alt="Image"
+                  class="preview-img"
+              /></td>
+                         
+                <td>{{ data?.filename }}</td>
+                <td>{{ isHumanText(data?.result?.is_human) }}</td>
+                <td>{{ genderText(data?.result?.gender) }}</td>
+                <td>{{ ageText(data?.result?.age) }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        
         <div class="table-loader-wrapper" *ngIf="showTableLoader">
             <div class="table-loader"></div>
         </div>  
