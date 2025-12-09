@@ -1183,9 +1183,17 @@ export class ReportDashboardComponent {
     this.commanService.getgislistfilter(payload).subscribe(
       (res: any) => {
         // console.log(res.data[0].fn_getgislistfilterwise);
-        this.tableData = JSON.parse(res.data[0].fn_get_gis_list_filter);
-        this.totalRecords = this.tableData.length;
         this.commanService.loaderSpinHide();
+        if(res.data[0].fn_get_gis_list_filter !== null){
+          this.tableData = JSON.parse(res.data[0].fn_get_gis_list_filter);
+          this.totalRecords = this.tableData.length;
+        }
+        else{
+          this.tableData = [];
+          this.totalRecords = 0;
+        }
+        
+        
       },
       (error) => {
         this.tableData = [];
