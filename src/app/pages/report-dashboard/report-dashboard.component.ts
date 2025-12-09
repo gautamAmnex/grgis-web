@@ -459,9 +459,10 @@ export class ReportDashboardComponent {
     // ----------------------------------------
     // 3️⃣ API CALL
     // ----------------------------------------
-    this.commanService
-      .getgisgoldenrecorddynamicgroup(payload)
+    this.commanService.loaderSpinShow()
+    this.commanService.getgisgoldenrecorddynamicgroup(payload)
       .subscribe((res: any) => {
+        this.commanService.loaderSpinHide()
         const response = JSON.parse(
           res.data[0].fn_get_gis_golden_record_dynamic_group_v1
         );
@@ -515,7 +516,11 @@ export class ReportDashboardComponent {
             "districtcode"
           );
         }
-      });
+      },
+      (error:any)=>{
+        this.commanService.loaderSpinHide()
+      }
+      );
   }
 
   // selection from filter panel
@@ -784,9 +789,9 @@ export class ReportDashboardComponent {
     let activeLevel: "village" | "taluka" | "district" | "state" | null = null;
 
     // Special branch: when selectedLevel exists (lgd_d/lgd_t) -> follow that
-    if (selLevel === "lgd_d") {
+    if (selLevel === 1) {
       activeLevel = "district";
-    } else if (selLevel === "lgd_t") {
+    } else if (selLevel === 2) {
       activeLevel = "taluka";
     } else {
       // selectedLevel is null -> check explicit CQL arrays with your new rules:
@@ -825,14 +830,14 @@ export class ReportDashboardComponent {
 
     // Handle cases
 
-    if (selLevel === "lgd_d") {
+    if (selLevel === 1) {
       // show districts of selected states (only district layer)
       const vals = formatValues(states);
       districtCql = vals ? `lgd_s IN (${vals})` : "";
       lgdCode = states[0] ?? null;
       this.selectedlayerNameForZoom = "lgd_s";
       this.selectedlayerNameForCount = "lgd_d";
-    } else if (selLevel === "lgd_t") {
+    } else if (selLevel === 2) {
       // show talukas of selected states (only taluka layer)
       const vals = formatValues(states);
       talukaCql = vals ? `lgd_s IN (${vals})` : "";
@@ -942,10 +947,10 @@ export class ReportDashboardComponent {
       // decide visibility combining selLevel and explicit CQL rules
       let visible = true;
 
-      if (selLevel === "lgd_d") {
+      if (selLevel === 1) {
         // selectedLevel override: show only district layer
         visible = layerName === "GR:india_district";
-      } else if (selLevel === "lgd_t") {
+      } else if (selLevel === 2) {
         // selectedLevel override: show only taluka layer
         visible = layerName === "GR:india_taluka";
       } else {
