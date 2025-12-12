@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, IterableDiffers } from "@angular/core";
+import { Component, AfterViewInit, IterableDiffers , ElementRef, HostListener, ViewChild } from "@angular/core";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -43,7 +43,7 @@ export class ReportDashboardComponent {
   selectedDisabilityOption: any;
 
   onLevelSelect() {
-    this.resetPanel();
+    this.resetPanel(false);
     this.selectedDistrict = null;
     this.selectedTaluka = null;
     this.selectedVillage = null;
@@ -244,17 +244,10 @@ export class ReportDashboardComponent {
         .subscribe((response: any) => {
           this.talukaList = response;
         });
-      this.cqlDistrict = [this.selectedDistrict.lgdcode];
-      this.displayBoundryLayer();
-      this.selectedlayerNameForZoom = "lgd_d";
-      this.getFeaturesExtends(this.selectedDistrict.lgdcode);
-      this.getgisgoldenrecorddynamicgroup();
-    } else {
-      this.cqlDistrict = [];
-      this.setDefaultView();
-
-      this.getgisgoldenrecorddynamicgroup();
+   
     }
+  
+  
   }
 
   getVillageListByTalukaId() {
@@ -270,11 +263,7 @@ export class ReportDashboardComponent {
         .subscribe((response: any) => {
           this.villageList = response;
         });
-      this.cqlSubDistrict = [this.selectedTaluka.lgdcode];
-      this.displayBoundryLayer();
-      this.selectedlayerNameForZoom = "lgd_t";
-      this.getFeaturesExtends(this.selectedTaluka.lgdcode);
-      this.getgisgoldenrecorddynamicgroup();
+   
     } else {
       this.cqlSubDistrict = [];
       this.displayBoundryLayer();
@@ -331,21 +320,54 @@ export class ReportDashboardComponent {
       .join(",");
   }
 
-  resetPanel() {
-    this.checkboxItems.forEach((item: any) => (item.checked = false));
-    this.genderCheckboxes.forEach((item: any) => (item.checked = false));
+  resetPanel(callFlag:any) {
+   
     this.ageGroups = [];
     this.selectedDomicileOption = null;
     this.selectedDisabilityOption = null;
     this.isAgeSelected = false;
-    this.selectedIncomeList = [];
-    this.selectedMartialStatusList = [];
+    this.selectedRationCardList = [];
+    this.selectedGenderList = [];
     this.isIncomeSelected = false;
     this.isIncomeSelected = false;
+
+    if(callFlag && (!this.selectedDistrict || !this.selectedTaluka)){
+      this.setDefaultView();
+    }
+    else
+     if(callFlag){
+      this.getgisgoldenrecorddynamicgroupWithFilter()
+    }
+  }
+  clearAreaWiseFilter(){
+    this.setDefaultView();
+  }
+
+  applyAreaWiseFilter(){
+    if (this.selectedDistrict){
+      this.cqlDistrict = [this.selectedDistrict.lgdcode];
+      this.displayBoundryLayer();
+      this.selectedlayerNameForZoom = "lgd_d";
+      this.getFeaturesExtends(this.selectedDistrict.lgdcode);
+      this.getgisgoldenrecorddynamicgroup();
+    }
+    else if (this.selectedTaluka){
+      this.cqlSubDistrict = [this.selectedTaluka.lgdcode];
+      this.displayBoundryLayer();
+      this.selectedlayerNameForZoom = "lgd_t";
+      this.getFeaturesExtends(this.selectedTaluka.lgdcode);
+      this.getgisgoldenrecorddynamicgroup();
+    }
+    else {
+      this.cqlDistrict = [];
+      this.setDefaultView();
+      this.getgisgoldenrecorddynamicgroup();
+    }
   }
 
   // Selection from dropdown
   getgisgoldenrecorddynamicgroup() {
+    this.legendList = []
     this.tableData = [];
     this.totalRecords = 0;
     if (this.highlightBoundaryLayer) {
@@ -385,8 +407,12 @@ export class ReportDashboardComponent {
     }
 
     // OTHER FILTERS
-    payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-    payload.gender = this.getSelectedGenderString();
+    payload.rationcardtype = this.selectedRationCardList
+    ? this.selectedRationCardList.join(",")
+    : "";
+    payload.gender = this.selectedGenderList
+    ? this.selectedGenderList.join(",")
+    : "";
 
     if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
       payload.domicileflag = String(this.selectedDomicileOption);
@@ -395,12 +421,12 @@ export class ReportDashboardComponent {
       payload.disabilityflag = String(this.selectedDisabilityOption);
 
     payload.age = this.makeRangeString(this.ageGroups);
-    payload.maritalstatus = this.makeCommaString(
-      this.selectedMartialStatusList
-    );
-    payload.income = this.selectedIncomeList
-      ? this.selectedIncomeList.join(",")
-      : "";
+    // payload.maritalstatus = this.makeCommaString(
+    //   this.selectedGenderList
+    // );
+    // payload.income = this.selectedRationCardList
+    //   ? this.selectedRationCardList.join(",")
+    //   : "";
 
     // BEGIN GROUPBY BUILDING
     const groupParts: string[] = [];
@@ -462,7 +488,7 @@ export class ReportDashboardComponent {
     this.commanService.loaderSpinShow()
     this.commanService.getgisgoldenrecorddynamicgroup(payload)
       .subscribe((res: any) => {
-        this.commanService.loaderSpinHide()
+      
         const response = JSON.parse(
           res.data[0].fn_get_gis_golden_record_dynamic_group_v1
         );
@@ -476,6 +502,8 @@ export class ReportDashboardComponent {
             this.map.removeLayer(this.countLabelLayer);
             this.countLabelLayer = null;
           }
+        
+          this.commanService.loaderSpinHide()
           return;
         }
 
@@ -527,6 +555,7 @@ export class ReportDashboardComponent {
   getgisgoldenrecorddynamicgroupWithFilter() {
     this.tableData = [];
     this.totalRecords = 0;
+    this.legendList = []
     if (this.highlightBoundaryLayer) {
       this.map.removeLayer(this.highlightBoundaryLayer);
     }
@@ -568,8 +597,12 @@ export class ReportDashboardComponent {
     // -----------------------------------------
     // 2️⃣ FILTER VALUES
     // -----------------------------------------
-    payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-    payload.gender = this.getSelectedGenderString();
+    payload.rationcardtype = this.selectedRationCardList
+    ? this.selectedRationCardList.join(",")
+    : "";
+    payload.gender = this.selectedGenderList
+    ? this.selectedGenderList.join(",")
+    : "";
 
     if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
       payload.domicileflag = String(this.selectedDomicileOption);
@@ -578,12 +611,12 @@ export class ReportDashboardComponent {
       payload.disabilityflag = String(this.selectedDisabilityOption);
 
     payload.age = this.makeRangeString(this.ageGroups);
-    payload.maritalstatus = this.makeCommaString(
-      this.selectedMartialStatusList
-    );
-    payload.income = this.selectedIncomeList
-      ? this.selectedIncomeList.join(",")
-      : "";
+    // payload.maritalstatus = this.makeCommaString(
+    //   this.selectedGenderList
+    // );
+    // payload.income = this.selectedRationCardList
+    //   ? this.selectedRationCardList.join(",")
+    //   : "";
 
     // -----------------------------------------
     // 3️⃣ BUILD GROUPBY (Dynamic)
@@ -655,6 +688,7 @@ export class ReportDashboardComponent {
     // -----------------------------------------
     // 6️⃣ API CALL
     // -----------------------------------------
+    this.commanService.loaderSpinShow()
     this.commanService
       .getgisgoldenrecorddynamicgroup(payload)
       .subscribe((res: any) => {
@@ -673,6 +707,7 @@ export class ReportDashboardComponent {
             this.map.removeLayer(this.countLabelLayer);
             this.countLabelLayer = null;
           }
+          this.commanService.loaderSpinHide()
           return;
         }
 
@@ -720,12 +755,30 @@ export class ReportDashboardComponent {
           this.selectedlayerNameForCount,
           lgdField
         );
-      });
+      },
+      (error:any)=>{
+        this.commanService.loaderSpinHide()
+      }
+      );
   }
 
-  largeMapView: boolean = false;
-  toggleMapZoom() {
-    this.largeMapView = !this.largeMapView;
+  @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLElement>;
+  fullScreenMapEnable = false;
+
+  toggleFullScreen() {
+    const elem = this.mapContainer.nativeElement;
+
+    if (!this.fullScreenMapEnable) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      }
+      this.fullScreenMapEnable = true;
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      this.fullScreenMapEnable = false;
+    }
   }
 
   boundaryLayers: any = [
@@ -996,10 +1049,10 @@ export class ReportDashboardComponent {
   selectedlayerNameForCount: any = "lgd_d";
   getFeaturesExtends(lgdCode: any) {
     let layerName = this.selectedlayerNameForZoom;
-    this.commanService.loaderSpinShow();
+  
     this.commanService.getBoundingBox(layerName, lgdCode).subscribe(
       (response: any) => {
-        this.commanService.loaderSpinHide();
+     
         const sourceProjection = "EPSG:4326";
         const targetProjection = "EPSG:3857";
         const geoJson = response;
@@ -1049,7 +1102,7 @@ export class ReportDashboardComponent {
         this.currentExtent = transformedExtent;
       },
       (error: any) => {
-        this.commanService.loaderSpinHide();
+     
       }
     );
   }
@@ -1145,8 +1198,12 @@ export class ReportDashboardComponent {
     // -----------------------------------------
     // 2️⃣ FILTER VALUES
     // -----------------------------------------
-    payload.rationcardtype = this.getSelectedrationCardCheckboxString();
-    payload.gender = this.getSelectedGenderString();
+    payload.rationcardtype = this.selectedRationCardList
+    ? this.selectedRationCardList.join(",")
+    : "";
+    payload.gender = this.selectedGenderList
+    ? this.selectedGenderList.join(",")
+    : "";
 
     if (this.selectedDomicileOption || this.selectedDomicileOption === 0)
       payload.domicileflag = String(this.selectedDomicileOption);
@@ -1155,12 +1212,12 @@ export class ReportDashboardComponent {
       payload.disabilityflag = String(this.selectedDisabilityOption);
 
     payload.age = this.makeRangeString(this.ageGroups);
-    payload.maritalstatus = this.makeCommaString(
-      this.selectedMartialStatusList
-    );
-    payload.income = this.selectedIncomeList
-      ? this.selectedIncomeList.join(",")
-      : "";
+    // payload.maritalstatus = this.makeCommaString(
+    //   this.selectedGenderList
+    // );
+    // payload.income = this.selectedRationCardList
+    //   ? this.selectedRationCardList.join(",")
+    //   : "";
 
     // -----------------------------------------
     // 4️⃣ APPLY YOUR SPECIAL MAPPING RULES
@@ -1191,6 +1248,7 @@ export class ReportDashboardComponent {
         this.commanService.loaderSpinHide();
         if(res.data[0].fn_get_gis_list_filter !== null){
           this.tableData = JSON.parse(res.data[0].fn_get_gis_list_filter);
+          this.showTable = true
           this.totalRecords = this.tableData.length;
         }
         else{
@@ -1208,6 +1266,7 @@ export class ReportDashboardComponent {
     );
   }
 
+  showTable: boolean = false;
   showDetail: boolean = false;
   formattedList: any;
   getDetailById(uniqueKey: any) {
@@ -1348,9 +1407,9 @@ export class ReportDashboardComponent {
     { label: "150000 - 500000", value: "150000-500000" },
     { label: "500000 - 1000000", value: "500000-1000000" },
   ];
-  selectedIncomeList: any = [];
+  selectedRationCardList: any = [];
   onIncomeCheckboxChange() {
-    this.selectedIncomeList = [];
+    this.selectedRationCardList = [];
   }
   onSelectImcomes() {}
 
@@ -1360,7 +1419,7 @@ export class ReportDashboardComponent {
     { label: "Widowed", value: "widowed" },
     { label: "Divorced", value: "divorced" },
   ];
-  selectedMartialStatusList: any = [];
+  selectedGenderList: any = [];
   onSelectMartialStatus() {}
 
   sampleData: any = [];
@@ -1370,13 +1429,58 @@ export class ReportDashboardComponent {
   boundaryClickListener: any;
   // add this field in your component class
   clickedBoundaryDetails: any = null; // will hold clicked boundary's properties + totalcount
+   buildThreeColorRanges(data: any) {
+    const colors :any = ['#fed55b', '#3487b0', '#8cc2f3'];
+  
+    // extract numbers safely
+    const counts = data
+      .map((d:any) => Number(d.totalcount))
+      .filter((n:any) => !isNaN(n));
+  
+    const min = Math.min(...counts);
+    const max = Math.max(...counts);
+  
+    // equal spacing
+    const interval = Math.floor((max - min) / 3);
+  
+    const r1_min = min;
+    const r1_max = r1_min + interval;
+  
+    const r2_min = r1_max + 1;
+    const r2_max = r2_min + interval;
+  
+    const r3_min = r2_max + 1;
+    const r3_max = max;
+  
+    return [
+      {
+        range: [r1_min, r1_max],
+        rangeLabel: `${r1_min} - ${r1_max}`,
+        color: colors[0],
+      },
+      {
+        range: [r2_min, r2_max],
+        rangeLabel: `${r2_min} - ${r2_max}`,
+        color: colors[1],
+      },
+      {
+        range: [r3_min, r3_max],
+        rangeLabel: `${r3_min} - ${r3_max}`,
+        color: colors[2],
+      },
+    ];
+  }
 
+  legendList:any = []
+  
   displayCountAndBoundary(
     sampleData: any[],
     layerName: string,
     leval: string,
     codeKey: any
   ) {
+    console.log(sampleData);
+    this.legendList = this.buildThreeColorRanges(sampleData)
     if (!Array.isArray(sampleData) || !sampleData.length) return;
     if (this.highlightBoundaryLayer) {
       this.map.removeLayer(this.highlightBoundaryLayer);
@@ -1473,7 +1577,6 @@ export class ReportDashboardComponent {
       attribute: leval,
       counts: countsObj,
     };
-    console.log(payload);
 
     this.setSldData(payload);
     return;
@@ -1681,12 +1784,12 @@ export class ReportDashboardComponent {
     // this.setSldData(payload)
     console.log(payload);
 
-    this.commanService.loaderSpinHide();
+
     // this.sldArray[0]
     // this.addGtColorFillSldLayer("")
     this.commanService.getGTsldUrl(payload).subscribe(
       (res) => {
- 
+        this.commanService.loaderSpinHide();
         this.addGtColorFillSldLayer(res.file_url);
       },
       (error: any) => {
@@ -1729,4 +1832,82 @@ export class ReportDashboardComponent {
 
     this.displayBoundryLayer();
   }
+
+  activeLayer: string = 'satellite';
+
+  sateliteMapFlage = true;
+  openStreet = false;
+  terrainMapFlage = false;  
+  deafaultLayer = false;
+  hybridMapFlag = false
+  // Changes the base map layer based on the input layer type.
+  changeBaselayers(layer: any) {
+    let url: any = null;
+    let visible = true;
+    if (layer === 'Terrain') {
+      this.terrainMapFlage = true;
+      this.sateliteMapFlage = false;
+      this.hybridMapFlag = false;
+      this.openStreet = false;
+      this.deafaultLayer = false;
+      url = 'https://mt1.google.com/vt/terrain=t&x={x}&y={y}&z={z}'
+    }
+
+    else if (layer === 'Satellite_hybrid') {
+      this.terrainMapFlage = false;
+      this.sateliteMapFlage = true;
+      this.hybridMapFlag = false;
+      this.openStreet = false;
+      this.deafaultLayer = false;
+      url = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+    }
+    else if (layer === 'Open_Street') {
+      this.terrainMapFlage = false;
+      this.sateliteMapFlage = false;
+      this.hybridMapFlag = false;
+      this.openStreet = true;
+      this.deafaultLayer = false;
+      url = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
+    }
+    else if (layer === 'googleHybrid') {
+     
+      this.terrainMapFlage = false;
+      this.sateliteMapFlage = false;
+      this.hybridMapFlag = true;
+      this.openStreet = false;
+      this.deafaultLayer = false;
+      url = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
+    }
+    else if (layer === 'deafaultLayer') {
+     
+      visible = false;
+    this.terrainMapFlage = false;
+    this.sateliteMapFlage = false;
+    this.hybridMapFlag = false;
+    this.openStreet = false;
+    this.deafaultLayer = true;
+    url = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
+    }
+   
+  
+    const baseMap_layer = new TileLayer({
+      source: new XYZ({
+        url: url,
+          // crossOrigin: 'anonymous',
+      }),
+      visible: visible,
+    })
+    // setTimeout(() => {
+      this.map.getLayers().setAt(0, baseMap_layer);
+    // }, 500);
+    
+    // this.map_new.addControl(this.overviewMapControlbase);
+  }
+
+  layers_toggle = false;
+  // Toggles the display of the layer toggle button UI.
+  toggle_layers(){
+    this.layers_toggle = !this.layers_toggle;
+  }
+
 }

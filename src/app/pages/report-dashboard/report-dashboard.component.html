@@ -36,7 +36,7 @@
                     placeholder="Select Taluka">
                 </p-dropdown>
             </div>
-            <div class="form_control">
+            <!-- <div class="form_control">
                     <p-dropdown 
                     [options]="villageList" 
                     [(ngModel)]="selectedVillage" 
@@ -46,6 +46,10 @@
                     (onChange)="onVillageSelect()"
                     placeholder="Select Village">
                 </p-dropdown>
+            </div> -->
+            <div class="btn_group">
+                <button (click)="applyAreaWiseFilter()">Apply</button>
+                <button (click)="clearAreaWiseFilter()">Clear</button>
             </div>
         </div>
         <div class="innerbody">
@@ -53,27 +57,38 @@
                 <div class="card">
                    <h4 for="" class="card_label">Select Ration Card Type</h4>
                    <div class="card_body">
-                        <div class="checkbox_list">
-                                <div class="checkbox_item" *ngFor="let item of checkboxItems">
-                                        <input type="checkbox" [(ngModel)]="item.checked">
-                                        <label>{{ item.label }}</label>
-                                    </div>
-                            </div>
-                            
+                        <div class="form_control" >
+                            <p-multiSelect  
+                                [options]="checkboxItems" 
+                                [(ngModel)]="selectedRationCardList" 
+                                optionLabel="label" 
+                                optionValue="value" 
+                                [showClear]="true"
+                                [filter]="false"
+                                display="chip" 
+                                placeholder="Select Ration Card Type">
+                            </p-multiSelect >
+                        </div> 
                    </div>
                 </div>
                 <div class="card">
                    <h4 for="" class="card_label">Select Gender</h4>
                    <div class="card_body">
-                       <div class="checkbox_list">
-                            <div class="checkbox_item" *ngFor="let item of genderCheckboxes">
-                                    <input type="checkbox" [(ngModel)]="item.checked" />
-                                    <label>{{ item.label }}</label>
-                                  </div>
-                       </div>
+                       <div class="form_control" >
+                        <p-multiSelect  
+                            [options]="genderCheckboxes" 
+                            [(ngModel)]="selectedGenderList" 
+                            optionLabel="label" 
+                            optionValue="value" 
+                            [showClear]="true"
+                            [filter]="false"
+                            display="chip" 
+                            placeholder="Select Gender">
+                        </p-multiSelect >
+                    </div> 
                    </div>
                 </div>
-                <div class="card">
+                <!-- <div class="card">
                    <h4 for="" class="card_label">Select Cast Category</h4>
                    <div class="card_body">
                        <div class="checkbox_list">
@@ -83,7 +98,7 @@
                            </div>
                        </div>
                    </div>
-                </div>
+                </div> -->
                 <div class="card">
                    <!-- <h4 for="" class="card_label">Select Cast Category</h4> -->
                    <div class="card_body">
@@ -143,109 +158,112 @@
                                     />
                         
                             </div>
-                            <div class="btn_group">
-                                <!-- <button type="button" class="add-btn" (click)="addAgeGroup()">+ Add</button> -->
-                                <!-- <button type="button" [disabled]="!applyEnabled" (click)="applyAgeFilter()">Apply</button> -->
-                            </div>
-                        
                           </div>
     
-                          <div class="checkbox_list">
-                                <div class="checkbox_item">
-                                    <input type="checkbox" [(ngModel)]="isIncomeSelected" (change)="onIncomeCheckboxChange()">
-                                    <label for="">Income</label>
-                                </div>
-                            </div>
-                            <div class="form_control" *ngIf="isIncomeSelected">
-                                <p-multiSelect  
-                                    [options]="incomeOption" 
-                                    [(ngModel)]="selectedIncomeList" 
-                                    optionLabel="label" 
-                                    optionValue="value" 
-                                    (onChange)="onSelectImcomes()"
-                                    [filter]="false"
-                                    display="chip" 
-                                    placeholder="Select Income">
-                                </p-multiSelect >
-                            </div>
                    </div>
                 </div>
-                <div class="card">
-                    <h4 for="" class="card_label">Select Marital status</h4>
-                    <div class="card_body">
-                            <div class="form_control" >
-                                    <p-multiSelect  
-                                        [options]="maritalStatusOptionList" 
-                                        [(ngModel)]="selectedMartialStatusList" 
-                                        optionLabel="label" 
-                                        optionValue="value" 
-                                        [filter]="false"
-                                        display="chip" 
-                                        (onChange)="onSelectMartialStatus()"
-                                        placeholder="Select">
-                                    </p-multiSelect >
-                                </div>
-                    </div>
-                    </div>
-    
-                    <button (click)="getgisgoldenrecorddynamicgroupWithFilter()">Apply</button>
+               
+                   <div class="btn_group">
+
+                       <button (click)="getgisgoldenrecorddynamicgroupWithFilter()">Apply</button>
+                       <button (click)="resetPanel(true)">Clear</button>
+                    </div> 
             </div>
             <div class="mapChartTablePanel">
                 <div class="mapChart">
-                    <div class="map_container" id="map" [ngClass]="{ 'largeMapView': largeMapView }">
-                        <button class="zoomMapBtn" (click)="toggleMapZoom()" >
-                            <i *ngIf="!largeMapView" class="pi pi-arrow-up-right-and-arrow-down-left-from-center"></i>
-                            <i *ngIf="largeMapView" class="pi pi-arrow-down-left-and-arrow-up-right-to-center"></i>
+                    <div class="map_container" #mapContainer  id="map" >
+                        <button class="zoomMapBtn" (click)="toggleFullScreen()" >
+                            <i *ngIf="!fullScreenMapEnable" class="pi pi-arrow-up-right-and-arrow-down-left-from-center"></i>
+                            <i *ngIf="fullScreenMapEnable" class="pi pi-arrow-down-left-and-arrow-up-right-to-center"></i>
                         </button>
-                    </div>
-                    <div class="chart_panel">
-                        <div class="echartDiv"></div>
+                        <div class="legend_div" *ngIf="legendList.length > 0">
+                            <ul>
+                                    <li *ngFor="let r of legendList">
+                                            <span [style.background]="r.color"></span>
+                                            <label>{{ r.rangeLabel }}</label>
+                                          </li>
+                            </ul>
+                        </div>
+                        <div class="layers_div">
+                            <div class="layers_div_inner" [ngClass]="layers_toggle? 'active':''">
+                               
+                                <button [ngClass]="{'active': sateliteMapFlage }" class="icon_btn"
+                                    (click)="changeBaselayers('Satellite_hybrid')">
+                                    <img src="assets/img/satellite_map_img.png" alt="Satellite">
+                                    <span>Google Satellite</span>
+                                </button>
+                                <button [ngClass]="{'active': terrainMapFlage }" class="icon_btn   "
+                                    (click)="changeBaselayers('Terrain')">
+                                    <img src="assets/img/terrain_map_img.png" alt="Terrain">
+                                    <span>Terrain</span>
+                                </button>
+                                <button [ngClass]="{'active': openStreet }" class="icon_btn"
+                                    (click)="changeBaselayers('Open_Street')">
+                                    <img src="assets/img/open_street_map_img.png" alt="Open Street">
+                                    <span>Open Street</span>
+                                </button>
+                                <!-- <button [ngClass]="{'active': hybridMapFlag }" class="icon_btn"
+                                    (click)="changeBaselayers('hybridMapFlag')">
+                                    <img src="assets/img/satellite_hybrid_map_img.png" alt="Open Street">
+                                    <span>Google  Hybrid</span>
+                                </button> -->
+                                <button [ngClass]="{'active': deafaultLayer }" class="icon_btn"
+                                                (click)="changeBaselayers('deafaultLayer')">
+                                                <img src="assets/img/white_bg.png" alt="Open Street">
+                                                <span>Default Layer</span>
+                                            </button>
+                            </div>
+                            <button class="layers_toggle_btn" pTooltip="Map Layers" tooltipPosition="right" [ngClass]="layers_toggle? 'active':''" (click)="toggle_layers()"><span>‹</span></button>
+                          </div>
                     </div>
                 </div>
-                <div class="table">
-                        <p-table
-                        *ngIf="tableData?.length > 0"
-                          [value]="tableData"
-                          [paginator]="true"
-                          [rows]="50"
-                          [scrollable]="true" 
-                          [totalRecords]="totalRecords" 
-                          [showCurrentPageReport]="true"
-                          currentPageReportTemplate="{first} - {last} of {totalRecords} items"
-                          [rowsPerPageOptions]="[10, 50 , 100]"
-                          scrollHeight="340px" 
-                          contentStyle="340px" 
-                      >
-                          <ng-template pTemplate="header">
-                              <tr>
-                                  <th style="min-width:50px;max-width:50px;text-align: center">&nbsp;</th>
-                                  <th>Name</th>
-                                  <th>Gender</th>
-                                  <th>District</th>
-                                  <th>Taluka</th>
-                                  <th>Village</th>
-                                    
-                              </tr>
-                          </ng-template>
-                          <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
-                              <tr>
-                                    <td style="min-width:50px;max-width:50px;text-align: center">
-                                        <button (click)="getDetailById(data.unique_key)"><i class="pi pi-eye"></i></button>
-                                    </td>
-                                        <td>{{data.name}}</td>
-                                        <td>{{data.gender}}</td>
-                                        <td>{{data.district}}</td>
-                                        <td>{{data.taluka}}</td>
-                                        <td>{{data.village}}</td>
-                              </tr>
-                          </ng-template>
-                      </p-table>
-                </div>
+               
             </div>
         </div>
     </div>
     
     <p-toast />
+    <p-dialog header="Summary" [modal]="true" [(visible)]="showTable" [style]="{ width: '80vw' }">
+        <div class="table">
+            <p-table
+            *ngIf="tableData?.length > 0"
+              [value]="tableData"
+              [paginator]="true"
+              [rows]="50"
+              [scrollable]="true" 
+              [totalRecords]="totalRecords" 
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="{first} - {last} of {totalRecords} items"
+              [rowsPerPageOptions]="[10, 50 , 100]"
+              scrollHeight="600px" 
+              contentStyle="700px" 
+          >
+              <ng-template pTemplate="header">
+                  <tr>
+                      <th style="min-width:50px;max-width:50px;text-align: center">&nbsp;</th>
+                      <th>Name</th>
+                      <th>Gender</th>
+                      <th>District</th>
+                      <th>Taluka</th>
+                      <th>Village</th>
+                        
+                  </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-data let-rowIndex="rowIndex">
+                  <tr>
+                        <td style="min-width:50px;max-width:50px;text-align: center">
+                            <button (click)="getDetailById(data.unique_key)"><i class="pi pi-eye"></i></button>
+                        </td>
+                            <td>{{data.name}}</td>
+                            <td>{{data.gender}}</td>
+                            <td>{{data.district}}</td>
+                            <td>{{data.taluka}}</td>
+                            <td>{{data.village}}</td>
+                  </tr>
+              </ng-template>
+          </p-table>
+    </div>
+    </p-dialog>
     <p-dialog header="Detail" [modal]="true" [(visible)]="showDetail" [style]="{ width: '50vw' }">
             <table class="info-table">
                     <tr *ngFor="let item of formattedList">
