@@ -437,24 +437,27 @@ export class ReportDashboardComponent {
     // ----------------------------------------
     // 1️⃣ DISTRICT / TALUKA / VILLAGE MAPPING
     // ----------------------------------------
-    const keys = Object.keys(payload);
-
-    for (const k of keys) {
-      if (k === "groupby") continue;
-      const val = payload[k];
+    for (const key of Object.keys(payload)) {
+      if (key === "groupby") continue;
+      const val = payload[key];
       if (!val || String(val).trim() === "") continue;
 
-      if (k === "district") {
+      if (key === "district") {
         groupParts.push("district", "districtcode", "taluka", "talukacode");
         continue;
       }
-      if (k === "taluka") {
+      if (key === "taluka") {
         groupParts.push("taluka", "talukacode", "village", "villagecode");
         continue;
       }
-      if (k === "village") {
+      if (key === "village") {
         groupParts.push("village", "villagecode");
         continue;
+      }
+
+      // Add gender normally (not part of special mapping)
+      if (key === "gender") {
+        groupParts.push("gender");
       }
     }
 
