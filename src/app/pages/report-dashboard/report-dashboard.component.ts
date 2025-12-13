@@ -171,25 +171,29 @@ export class ReportDashboardComponent {
             this.displayHighlightedBoundary(
               props.lgd_v,
               "GR:india_villages",
-              "lgd_v"
+              "lgd_v",
+              props.lgd_t
             );
           } else if (props?.lgd_t) {
             this.displayHighlightedBoundary(
               props.lgd_t,
               "GR:india_taluka",
-              "lgd_t"
+              "lgd_t",
+              props.lgd_d
             );
           } else if (props?.lgd_d) {
             this.displayHighlightedBoundary(
               props.lgd_d,
               "GR:india_district",
-              "lgd_d"
+              "lgd_d",
+              props.lgd_s
             );
           } else if (props?.lgd_s) {
             this.displayHighlightedBoundary(
               props.lgd_s,
               "GR:india_states",
-              "lgd_s"
+              "lgd_s",
+              props.lgd_s
             );
           }
         })
@@ -362,9 +366,10 @@ export class ReportDashboardComponent {
       this.getgisgoldenrecorddynamicgroup();
     }
     else {
+      this.selectedLevel = 1
       this.cqlDistrict = [];
       this.setDefaultView();
-      this.getgisgoldenrecorddynamicgroup();
+      // this.getgisgoldenrecorddynamicgroup();
     }
   }
 
@@ -1115,9 +1120,10 @@ export class ReportDashboardComponent {
 
   highlightBoundaryLayer: any;
   // Loads and styles the specified LGD boundary layer (villages/taluka/district/state) using WFS + CQL filter.
-  displayHighlightedBoundary(code: any, layerName: any, leval: any) {
+  displayHighlightedBoundary(code: any, layerName: any, leval: any, parentCode:any) {
     this.selectedCodeForTable = code
     this.selectedLevelForTable = leval
+    this.selectedParentCodeForTable = parentCode
     this.commanService.loaderSpinShow();
 
     // Remove old highlight layer if exists
@@ -1176,13 +1182,14 @@ export class ReportDashboardComponent {
     this.first = 0;
     this.rows = 50;
     this.table?.reset();
-    this.getTableDetailByLgdCode(code, leval);
+    this.getTableDetailByLgdCode(code, leval,parentCode);
   }
 
   first: any = 0;
   rows: any = 50;
   selectedCodeForTable:any
   selectedLevelForTable:any
+  selectedParentCodeForTable:any
   tableFlag:boolean = true
   
 
@@ -1196,13 +1203,14 @@ export class ReportDashboardComponent {
   
     this.getTableDetailByLgdCode(
       this.selectedCodeForTable,
-      this.selectedLevelForTable
+      this.selectedLevelForTable,
+      this.selectedParentCodeForTable
     );
   }
 
   tableData: any = [];
   totalRecords: any = 0;
-  getTableDetailByLgdCode(code: any, leval: any) {
+  getTableDetailByLgdCode(code: any, leval: any, parentCode:any) {
     this.tableFlag = false
     // this.tableData = [];
     // this.totalRecords = 0;
@@ -1225,8 +1233,10 @@ export class ReportDashboardComponent {
     if (leval == "lgd_d") {
       payload.district = String(code);
     } else if (leval == "lgd_t") {
+      payload.district = String(parentCode);
       payload.taluka = String(code);
     } else if (leval == "lgd_v") {
+      payload.taluka = String(parentCode);
       payload.village = String(code);
     }
 
@@ -1768,25 +1778,29 @@ export class ReportDashboardComponent {
             this.displayHighlightedBoundary(
               this.clickedBoundaryDetails.properties.lgd_v,
               "GR:india_villages",
-              "lgd_v"
+              "lgd_v",
+              props.lgd_t
             );
           } else if (this.clickedBoundaryDetails.properties?.lgd_t) {
             this.displayHighlightedBoundary(
               this.clickedBoundaryDetails.properties.lgd_t,
               "GR:india_taluka",
-              "lgd_t"
+              "lgd_t",
+              props.lgd_d
             );
           } else if (this.clickedBoundaryDetails.properties?.lgd_d) {
             this.displayHighlightedBoundary(
               this.clickedBoundaryDetails.properties.lgd_d,
               "GR:india_district",
-              "lgd_d"
+              "lgd_d",
+              props.lgd_s
             );
           } else if (this.clickedBoundaryDetails.properties?.lgd_s) {
             this.displayHighlightedBoundary(
               this.clickedBoundaryDetails.properties.lgd_s,
               "GR:india_states",
-              "lgd_s"
+              "lgd_s",
+              props.lgd_s
             );
           }
 
