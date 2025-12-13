@@ -5,6 +5,7 @@ import { ReportDashboardComponent } from './report-dashboard/report-dashboard.co
 import { UploadImageComponent } from './upload-image/upload-image.component';
 import { CompareImageComponent } from './compare-image/compare-image.component';
 import { MultipleImageUploadComponent } from './multiple-image-upload/multiple-image-upload.component';
+import { UploadImageV2Component } from './upload-image-v2/upload-image-v2.component';
 
 const routes: Routes = [
   {
@@ -15,7 +16,8 @@ const routes: Routes = [
       { path: 'report-dashboard', component: ReportDashboardComponent },
       { path: 'upload-image', component: UploadImageComponent },
       { path: 'compare-image', component: CompareImageComponent },
-      { path: 'upload-images', component: MultipleImageUploadComponent }
+      { path: 'upload-images', component: MultipleImageUploadComponent },
+      { path: 'upload-image-v2', component: UploadImageV2Component }
     ]
   }
 ];

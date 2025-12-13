@@ -19,6 +19,7 @@ import { MultipleImageUploadComponent } from './multiple-image-upload/multiple-i
 import { DialogModule } from 'primeng/dialog';import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { UploadImageV2Component } from './upload-image-v2/upload-image-v2.component';
 @NgModule({
   declarations: [
     PagesComponent,

@@ -344,18 +344,19 @@ export class ReportDashboardComponent {
   }
 
   applyAreaWiseFilter(){
-    if (this.selectedDistrict){
-      this.cqlDistrict = [this.selectedDistrict.lgdcode];
-      this.displayBoundryLayer();
-      this.selectedlayerNameForZoom = "lgd_d";
-      this.getFeaturesExtends(this.selectedDistrict.lgdcode);
-      this.getgisgoldenrecorddynamicgroup();
-    }
-    else if (this.selectedTaluka){
+    
+     if (this.selectedTaluka){
       this.cqlSubDistrict = [this.selectedTaluka.lgdcode];
       this.displayBoundryLayer();
       this.selectedlayerNameForZoom = "lgd_t";
       this.getFeaturesExtends(this.selectedTaluka.lgdcode);
+      this.getgisgoldenrecorddynamicgroup();
+    }
+    else if (this.selectedDistrict){
+      this.cqlDistrict = [this.selectedDistrict.lgdcode];
+      this.displayBoundryLayer();
+      this.selectedlayerNameForZoom = "lgd_d";
+      this.getFeaturesExtends(this.selectedDistrict.lgdcode);
       this.getgisgoldenrecorddynamicgroup();
     }
     else {

@@ -19,7 +19,7 @@ export class CommanService {
     }
   }
   geoServerUrl_dss = "https://preprod-kdss.da.gov.in/geoserver/krishi-dss/wms";
-  geoServerUrl = "http://10.130.3.25:8080/geoserver/GR/wms";
+  geoServerUrl = "https://gr.amnex.co.in/geoserver/GR/wms";
   getBoundingBox(layerName: any, lgd_s: any): Observable<any> {
     let areaName: any;
     let url = "";
@@ -204,11 +204,19 @@ export class CommanService {
   }
 
   // =======================================
-  pridictSingleImage(payload: any): Observable<any> {
+  pridictMultiImage(payload: any): Observable<any> {
     return this.http.post(
+      `https://gr.amnex.co.in/ai-ml-service/pipeline/v2/predict_multi`,
+      payload
+    );
+
+  }
+  pridictSingleImage(payload: any): Observable<any> {
+      return this.http.post(
       `https://gr.amnex.co.in/ai-ml-service/pipeline/predict`,
       payload
     );
+
   }
   pridictsimilarityImage(payload: any): Observable<any> {
     return this.http.post(`http://10.11.0.35:12001/check_matching`, payload);
