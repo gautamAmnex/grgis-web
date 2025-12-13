@@ -22,6 +22,7 @@ import Feature from "ol/Feature";
 import { Point } from "ol/geom";
 import { TileWMS, Vector, ImageStatic } from "ol/source";
 import { LazyLoadEvent } from 'primeng/api';
+import { Table } from 'primeng/table';
 @Component({
   selector: "app-report-dashboard",
   templateUrl: "./report-dashboard.component.html",
@@ -29,7 +30,7 @@ import { LazyLoadEvent } from 'primeng/api';
 })
 export class ReportDashboardComponent {
   constructor(private commanService: CommanService) {}
-
+  @ViewChild('dt') table!: Table;
   selectedLevel: any;
   levelOptionList: any = [
     { name: "District", value: 1 },
@@ -1112,6 +1113,8 @@ export class ReportDashboardComponent {
   highlightBoundaryLayer: any;
   // Loads and styles the specified LGD boundary layer (villages/taluka/district/state) using WFS + CQL filter.
   displayHighlightedBoundary(code: any, layerName: any, leval: any) {
+    this.selectedCodeForTable = code
+    this.selectedLevelForTable = leval
     this.commanService.loaderSpinShow();
 
     // Remove old highlight layer if exists
@@ -1167,25 +1170,39 @@ export class ReportDashboardComponent {
     this.map.addLayer(this.highlightBoundaryLayer);
 
     this.commanService.loaderSpinHide();
+    this.first = 0;
+    this.rows = 50;
+    this.table?.reset();
     this.getTableDetailByLgdCode(code, leval);
   }
 
   first: any = 0;
   rows: any = 50;
+  selectedCodeForTable:any
+  selectedLevelForTable:any
+  tableFlag:boolean = true
+  
+
   loadData(event: LazyLoadEvent) {
-    this.first = event.first;
-    this.rows = event.rows;
-
-    // this.getTableDetailByLgdCode()
-
-    
+    this.first = event.first ?? 0;
+    this.rows = event.rows ?? 50;
+  
+    if (!this.tableFlag) {
+      return;
+    }
+  
+    this.getTableDetailByLgdCode(
+      this.selectedCodeForTable,
+      this.selectedLevelForTable
+    );
   }
 
   tableData: any = [];
   totalRecords: any = 0;
   getTableDetailByLgdCode(code: any, leval: any) {
-    this.tableData = [];
-    this.totalRecords = 0;
+    this.tableFlag = false
+    // this.tableData = [];
+    // this.totalRecords = 0;
     const payload: any = {
       groupby: "",
       district: "",
@@ -1198,7 +1215,7 @@ export class ReportDashboardComponent {
       age: "",
       maritalstatus: "",
       income: "",
-      "page": String(this.first / this.rows) ,
+      "page": String((this.first / this.rows) + 1) ,
       "size":String( this.rows),
     };
 
@@ -1262,21 +1279,25 @@ export class ReportDashboardComponent {
         // console.log(res.data[0].fn_getgislistfilterwise);
         this.commanService.loaderSpinHide();
         if(res.data[0].fn_get_gis_list_filter !== null){
-          this.tableData = JSON.parse(res.data[0].fn_get_gis_list_filter);
+          const data = JSON.parse(res.data[0].fn_get_gis_list_filter)
+          console.log(JSON.parse(res.data[0].fn_get_gis_list_filter));
+          
+          this.tableData = data.data
           this.showTable = true
-          this.totalRecords = this.tableData.length;
+          this.totalRecords = data.totalCount
         }
         else{
           this.tableData = [];
           this.totalRecords = 0;
         }
-        
+        setTimeout(() => (this.tableFlag = true)); 
         
       },
       (error) => {
         this.tableData = [];
         this.totalRecords = 0;
         this.commanService.loaderSpinHide();
+        setTimeout(() => (this.tableFlag = true));
       }
     );
   }

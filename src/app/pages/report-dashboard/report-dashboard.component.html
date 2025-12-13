@@ -25,7 +25,7 @@
                     placeholder="Select District">
                 </p-dropdown>
             </div>
-            <div class="form_control">
+            <!-- <div class="form_control">
                     <p-dropdown 
                     [options]="talukaList" 
                     [(ngModel)]="selectedTaluka" 
@@ -35,7 +35,7 @@
                     (onChange)="getVillageListByTalukaId()"
                     placeholder="Select Taluka">
                 </p-dropdown>
-            </div>
+            </div> -->
             <!-- <div class="form_control">
                     <p-dropdown 
                     [options]="villageList" 
@@ -225,7 +225,7 @@
     <p-toast />
     <p-dialog header="Summary" [modal]="true" [(visible)]="showTable" [style]="{ width: '80vw' }">
         <div class="table">
-            <p-table
+            <p-table #dt
             *ngIf="tableData?.length > 0"
               [value]="tableData"
               [paginator]="true"
