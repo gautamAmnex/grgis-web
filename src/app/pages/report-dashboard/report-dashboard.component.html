@@ -230,6 +230,8 @@
               [value]="tableData"
               [paginator]="true"
               [rows]="50"
+              (onLazyLoad)="loadData($event)" 
+              [lazy]="true"
               [scrollable]="true" 
               [totalRecords]="totalRecords" 
               [showCurrentPageReport]="true"

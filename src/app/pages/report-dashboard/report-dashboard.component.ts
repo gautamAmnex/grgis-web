@@ -21,6 +21,7 @@ import { getCenter } from "ol/extent";
 import Feature from "ol/Feature";
 import { Point } from "ol/geom";
 import { TileWMS, Vector, ImageStatic } from "ol/source";
+import { LazyLoadEvent } from 'primeng/api';
 @Component({
   selector: "app-report-dashboard",
   templateUrl: "./report-dashboard.component.html",
@@ -1169,6 +1170,17 @@ export class ReportDashboardComponent {
     this.getTableDetailByLgdCode(code, leval);
   }
 
+  first: any = 0;
+  rows: any = 50;
+  loadData(event: LazyLoadEvent) {
+    this.first = event.first;
+    this.rows = event.rows;
+
+    // this.getTableDetailByLgdCode()
+
+    
+  }
+
   tableData: any = [];
   totalRecords: any = 0;
   getTableDetailByLgdCode(code: any, leval: any) {
@@ -1186,6 +1198,8 @@ export class ReportDashboardComponent {
       age: "",
       maritalstatus: "",
       income: "",
+      "page": String(this.first / this.rows) ,
+      "size":String( this.rows),
     };
 
     if (leval == "lgd_d") {

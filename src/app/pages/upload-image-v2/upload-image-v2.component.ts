@@ -48,7 +48,7 @@ const parts = filename.replace(".jpg", "").split("_");
 
 const gender = parts[1] || "";
 const age = Number(parts[2]);
-
+this.age_actual = age
 // Validate gender
 this.gender_actual = (gender === "Male" || gender === "Female") ? gender : "No Data";
 
@@ -67,7 +67,7 @@ this.age_actual = "No Data"; // default
 
 for (const cat of categories) {
   if (age >= cat.min && age <= cat.max) {
-    this.age_actual = cat.label;
+    this.age_actual = age;
     break;
   }
 }
@@ -241,6 +241,38 @@ imageDetail:any = {}
   
   private capitalize(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  
+  ageMatchesCategory(): boolean {
+   const categories = [
+      { min: 0,  max: 10,  label: "0-10" },
+      { min: 11, max: 20,  label: "11-20" },
+      { min: 21, max: 30,  label: "21-30" },
+      { min: 31, max: 40,  label: "31-40" },
+      { min: 41, max: 50,  label: "41-50" },
+      { min: 51, max: 60,  label: "51-60" },
+      { min: 61, max: 200, label: "61+" },
+    ];
+    // No data cases
+    if (
+      this.age_actual === null ||
+      this.age_actual === undefined ||
+      this.ageText_actule === 'No Data'
+    ) {
+      return false;
+    }
+  
+    const category = categories.find(
+      c => c.label === this.ageText_actule
+    );
+  
+    if (!category) {
+      return false;
+    }
+  
+    return this.age_actual >= category.min &&
+           this.age_actual <= category.max;
   }
   
 
